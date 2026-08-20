@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  /* MAËLYS brand tokens (extracted from live LP CSS) */
+  --m-text: #120d0e;
+  --m-cta: #ffafc4;
+  --m-cta-text: #ffffff;
+  --m-pink: #f4d8e2;
+  --m-light-pink: #ffe0e9;
+  --m-pale-pink: #fff5f8;
+  --m-beige: #f6f3f0;
+  --m-beige-light: #fbfaf8;
+  --m-purple: #57539e;
+  --m-lavender: #eae7ff;
+  --m-success: #218a31;
+  --m-gold: #b8a568;
+
+  /* App chrome */
+  --chrome-bg: #101014;
+  --chrome-panel: #18181e;
+  --chrome-border: #2a2a33;
+  --chrome-text: #e8e8ee;
+  --chrome-muted: #9a9aa8;
+}
+
+@theme inline {
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-lora), Georgia, serif;
+  --font-stat: var(--font-oswald), Impact, sans-serif;
+}
+
+body {
+  background: var(--chrome-bg);
+  color: var(--chrome-text);
+  font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* LP preview uses light theme regardless of app chrome */
+.lp-root {
+  background: #ffffff;
+  color: var(--m-text);
+  font-family: var(--font-poppins), sans-serif;
+}
+.lp-serif {
+  font-family: var(--font-lora), Georgia, serif;
+}
+.lp-stat {
+  font-family: var(--font-oswald), Impact, sans-serif;
+}
+
+.ticker {
+  animation: ticker 22s linear infinite;
+}
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.pulse-soft { animation: pulseSoft 1.6s ease-in-out infinite; }
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
