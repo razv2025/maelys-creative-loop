@@ -124,15 +124,39 @@ export interface LandingPageContent {
   seo: { title: string; slug: string };
 }
 
+// ---- Provenance: which data source drove a given choice ----
+
+export type SourceType =
+  | "ad-analysis" // the uploaded video, analyzed by Gemini
+  | "maelys-site" // scraped maelyscosmetics.com LPs: assets, offer facts, voice
+  | "internal-data" // unified performance dataset (Meta+GA4+LTV+A/B)
+  | "competitor"; // scraped competitor funnels
+
+export interface SourceUse {
+  type: SourceType;
+  source: string; // e.g. "AB-2026-03", "crepe-erase-2", "ad transcript"
+  usedFor: string; // what it influenced on this page
+}
+
+export interface StructureDecision {
+  decision: string; // e.g. "Clinical stats placed before first offer"
+  basedOn: string; // e.g. "AB-2026-07"
+  sourceType: SourceType;
+}
+
 export interface LpRecommendation {
   title: string;
   detail: string;
   expectedImpact: string; // e.g. "ATC +", "CVR +", "trust"
+  sourceType?: SourceType;
+  source?: string; // learning id / competitor insight id / "ad analysis"
 }
 
 export interface GenerateLpResponse {
   content: LandingPageContent;
   recommendations: LpRecommendation[];
+  sourcesUsed: SourceUse[];
+  structureDecisions: StructureDecision[];
 }
 
 // ---- Mock performance ----

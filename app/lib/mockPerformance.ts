@@ -1,49 +1,67 @@
-// Deterministic synthetic Meta performance data for the demo dashboard.
-// In production this is the ingestion layer: Meta Marketing API insights joined
-// to the creative-attribute taxonomy produced at analysis time.
+// Fixed synthetic performance layer — loads the checked-in unified dataset
+// (data/performance.json) that stands in for Meta insights + GA4 + LTV +
+// the A/B test archive, joined on the Creative Genome. Deterministic: every
+// demo run sees the same numbers and makes the same, explainable choices.
 
+import dataset from "@/data/performance.json";
 import type { AttributeLearning, CreativePerf, CreativeAnalysis, Archetype } from "./types";
 
-function hashStr(s: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
+export interface ModuleLearning {
+  id: string;
+  module: string;
+  test: string;
+  finding: string;
+  effect: string;
+  appliesTo: string[];
+  directive: string;
 }
 
-function rng(seed: number) {
-  let a = seed;
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+export const DATASET_META = dataset._meta;
+export const MODULE_LEARNINGS: ModuleLearning[] = dataset.moduleLearnings;
+
+interface DatasetCreative {
+  id: string;
+  name: string;
+  attributes: { hookType: string; angle: string; format: string; creator: string | null; lpArchetype: string };
+  meta: { spend: number; impressions: number; cpm: number; thumbstop: number; ctr: number; cvr: number; cpa: number; roas: number };
+  ga4: { engagedScrollPct: number; avgLpDwellSec: number };
+  ltv: { d90LtvToCac: number; refundRatePct: number };
+  status: string;
+}
+
+function toPerf(c: DatasetCreative): CreativePerf {
+  return {
+    id: c.id,
+    name: c.name,
+    attributes: { ...c.attributes, lpArchetype: c.attributes.lpArchetype as Archetype },
+    spend: c.meta.spend,
+    impressions: c.meta.impressions,
+    ctr: c.meta.ctr,
+    cpm: c.meta.cpm,
+    thumbstop: c.meta.thumbstop,
+    cvr: c.meta.cvr,
+    cpa: c.meta.cpa,
+    roas: c.meta.roas,
+    status: c.status as CreativePerf["status"],
   };
 }
 
-const FLEET: Omit<CreativePerf, "spend" | "impressions" | "ctr" | "cpm" | "thumbstop" | "cvr" | "cpa" | "roas" | "status">[] = [
-  { id: "cr-101", name: "Caroline confession — loose skin", attributes: { hookType: "creator confession", angle: "post-weight-loss loose skin", format: "UGC talking head", creator: "Caroline B.", lpArchetype: "listicle-creator" } },
-  { id: "cr-102", name: "GLP-1 callout — static→whip demo", attributes: { hookType: "problem callout", angle: "GLP-1 loose skin", format: "demo", creator: null, lpArchetype: "advertorial" } },
-  { id: "cr-103", name: "Before/after tease — 30 days", attributes: { hookType: "result tease", angle: "post-weight-loss loose skin", format: "testimonial compilation", creator: null, lpArchetype: "advertorial" } },
-  { id: "cr-104", name: "Product explainer — clinical", attributes: { hookType: "question", angle: "cellulite appearance", format: "product explainer", creator: null, lpArchetype: "advertorial-compact" } },
-  { id: "cr-105", name: "Nighttime ritual — ASMR", attributes: { hookType: "pattern interrupt", angle: "works while you sleep", format: "lifestyle montage", creator: null, lpArchetype: "advertorial-compact" } },
-  { id: "cr-106", name: "Skeptic converts — 'nothing works'", attributes: { hookType: "creator confession", angle: "skepticism relief", format: "UGC talking head", creator: "Dana R.", lpArchetype: "listicle-creator" } },
-];
-
-// Attribute biases: what the synthetic account has "learned".
-const HOOK_BIAS: Record<string, number> = { "creator confession": 1.35, "problem callout": 1.1, "result tease": 1.0, question: 0.8, "pattern interrupt": 0.75 };
-const FORMAT_BIAS: Record<string, number> = { "UGC talking head": 1.3, demo: 1.1, "testimonial compilation": 1.0, "product explainer": 0.8, "lifestyle montage": 0.75 };
-const LP_BIAS: Record<string, number> = { "listicle-creator": 1.25, advertorial: 1.05, "advertorial-compact": 0.85, "exploratory-story": 1.0 };
-
 export function fleetPerformance(currentAdName?: string, analysis?: CreativeAnalysis): CreativePerf[] {
-  const fleet = [...FLEET];
+  const fleet = (dataset.creatives as DatasetCreative[]).map(toPerf);
   if (analysis && currentAdName) {
+    // The just-analyzed ad joins the fleet as a new test cell: its KPIs are
+    // projected from the dataset average of creatives sharing its attributes.
+    const peers = fleet.filter(
+      (c) =>
+        c.attributes.hookType === analysis.hook.type ||
+        c.attributes.format === analysis.format.style
+    );
+    const base = peers.length ? peers : fleet;
+    const avg = (f: (c: CreativePerf) => number) =>
+      +(base.reduce((a, c) => a + f(c), 0) / base.length).toFixed(2);
     fleet.unshift({
       id: "cr-100",
-      name: `▶ ${currentAdName} (this ad)`,
+      name: `▶ ${currentAdName} (this ad — projected from ${base.length} attribute peers)`,
       attributes: {
         hookType: analysis.hook.type,
         angle: analysis.angle,
@@ -51,29 +69,18 @@ export function fleetPerformance(currentAdName?: string, analysis?: CreativeAnal
         creator: analysis.format.creatorName,
         lpArchetype: analysis.recommendedArchetype as Archetype,
       },
+      spend: 500,
+      impressions: Math.round((500 / avg((c) => c.cpm)) * 1000),
+      ctr: avg((c) => c.ctr),
+      cpm: avg((c) => c.cpm),
+      thumbstop: avg((c) => c.thumbstop),
+      cvr: avg((c) => c.cvr),
+      cpa: avg((c) => c.cpa),
+      roas: avg((c) => c.roas),
+      status: "testing",
     });
   }
-  return fleet.map((c) => {
-    const r = rng(hashStr(c.id + c.name));
-    const bias =
-      (HOOK_BIAS[c.attributes.hookType] ?? 1) *
-      (FORMAT_BIAS[c.attributes.format] ?? 1) *
-      (LP_BIAS[c.attributes.lpArchetype] ?? 1);
-    const spend = Math.round(2000 + r() * 28000);
-    const cpm = +(9 + r() * 8).toFixed(2);
-    const impressions = Math.round((spend / cpm) * 1000);
-    const thumbstop = +(18 + r() * 14 * bias).toFixed(1);
-    const ctr = +((0.9 + r() * 1.4) * bias).toFixed(2);
-    const cvr = +((2.2 + r() * 2.2) * bias).toFixed(2);
-    const clicks = impressions * (ctr / 100);
-    const purchases = Math.max(1, Math.round(clicks * (cvr / 100)));
-    const cpa = +(spend / purchases).toFixed(2);
-    const aov = 62;
-    const roas = +((purchases * aov) / spend).toFixed(2);
-    const status: CreativePerf["status"] =
-      roas >= 1.6 ? "scaling" : roas >= 1.1 ? "testing" : roas >= 0.8 ? "fatiguing" : "retired";
-    return { ...c, spend, impressions, ctr, cpm, thumbstop, cvr, cpa, roas, status };
-  });
+  return fleet;
 }
 
 export function computeLearnings(fleet: CreativePerf[]): AttributeLearning[] {

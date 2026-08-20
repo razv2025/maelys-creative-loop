@@ -1,0 +1,138 @@
+{
+  "_meta": {
+    "description": "Fixed synthetic dataset standing in for MAËLYS's unified internal data: Meta insights + GA4 site behaviour + LTV/refund cohorts + historical A/B test archive, joined on the creative-attribute taxonomy (the Creative Genome). Deterministic — checked into the repo so every demo run makes the same, explainable choices.",
+    "standsInFor": ["Meta Marketing API insights", "GA4 behaviour export", "LTV / 1st-party purchase data", "Historical A/B test archive"],
+    "window": "2026-07-01 → 2026-08-14",
+    "synthetic": true
+  },
+  "creatives": [
+    {
+      "id": "cr-101",
+      "name": "Caroline confession — loose skin",
+      "attributes": { "hookType": "creator confession", "angle": "post-weight-loss loose skin", "format": "UGC talking head", "creator": "Caroline B.", "lpArchetype": "listicle-creator" },
+      "meta": { "spend": 28400, "impressions": 2145000, "cpm": 13.24, "thumbstop": 31.2, "ctr": 2.18, "cvr": 4.6, "cpa": 29.1, "roas": 2.13 },
+      "ga4": { "engagedScrollPct": 58, "avgLpDwellSec": 96 },
+      "ltv": { "d90LtvToCac": 2.9, "refundRatePct": 6.1 },
+      "status": "scaling"
+    },
+    {
+      "id": "cr-102",
+      "name": "GLP-1 callout — problem demo",
+      "attributes": { "hookType": "problem callout", "angle": "GLP-1 loose skin", "format": "demo", "creator": null, "lpArchetype": "advertorial" },
+      "meta": { "spend": 19800, "impressions": 1620000, "cpm": 12.22, "thumbstop": 27.4, "ctr": 1.84, "cvr": 3.9, "cpa": 34.6, "roas": 1.79 },
+      "ga4": { "engagedScrollPct": 51, "avgLpDwellSec": 84 },
+      "ltv": { "d90LtvToCac": 2.6, "refundRatePct": 5.4 },
+      "status": "scaling"
+    },
+    {
+      "id": "cr-103",
+      "name": "Before/after tease — 30 days",
+      "attributes": { "hookType": "result tease", "angle": "post-weight-loss loose skin", "format": "testimonial compilation", "creator": null, "lpArchetype": "advertorial" },
+      "meta": { "spend": 12100, "impressions": 1010000, "cpm": 11.98, "thumbstop": 24.8, "ctr": 1.52, "cvr": 3.4, "cpa": 41.9, "roas": 1.48 },
+      "ga4": { "engagedScrollPct": 47, "avgLpDwellSec": 71 },
+      "ltv": { "d90LtvToCac": 2.2, "refundRatePct": 7.8 },
+      "status": "testing"
+    },
+    {
+      "id": "cr-104",
+      "name": "Product explainer — clinical",
+      "attributes": { "hookType": "question", "angle": "cellulite appearance", "format": "product explainer", "creator": null, "lpArchetype": "advertorial-compact" },
+      "meta": { "spend": 9400, "impressions": 745000, "cpm": 12.62, "thumbstop": 19.6, "ctr": 1.12, "cvr": 2.9, "cpa": 52.3, "roas": 1.19 },
+      "ga4": { "engagedScrollPct": 42, "avgLpDwellSec": 63 },
+      "ltv": { "d90LtvToCac": 1.9, "refundRatePct": 5.0 },
+      "status": "testing"
+    },
+    {
+      "id": "cr-105",
+      "name": "Nighttime ritual — sensory ASMR",
+      "attributes": { "hookType": "pattern interrupt", "angle": "works while you sleep", "format": "lifestyle montage", "creator": null, "lpArchetype": "advertorial-compact" },
+      "meta": { "spend": 7600, "impressions": 690000, "cpm": 11.01, "thumbstop": 22.1, "ctr": 0.98, "cvr": 2.4, "cpa": 61.7, "roas": 0.97 },
+      "ga4": { "engagedScrollPct": 39, "avgLpDwellSec": 58 },
+      "ltv": { "d90LtvToCac": 1.7, "refundRatePct": 4.6 },
+      "status": "fatiguing"
+    },
+    {
+      "id": "cr-106",
+      "name": "Skeptic converts — 'nothing works'",
+      "attributes": { "hookType": "creator confession", "angle": "skepticism relief", "format": "UGC talking head", "creator": "Dana R.", "lpArchetype": "listicle-creator" },
+      "meta": { "spend": 15200, "impressions": 1180000, "cpm": 12.88, "thumbstop": 29.7, "ctr": 1.96, "cvr": 4.1, "cpa": 32.4, "roas": 1.91 },
+      "ga4": { "engagedScrollPct": 55, "avgLpDwellSec": 89 },
+      "ltv": { "d90LtvToCac": 2.7, "refundRatePct": 6.4 },
+      "status": "scaling"
+    },
+    {
+      "id": "cr-107",
+      "name": "Us-vs-Them comparison — static",
+      "attributes": { "hookType": "comparison", "angle": "only clinically proven whip", "format": "static image", "creator": null, "lpArchetype": "advertorial-compact" },
+      "meta": { "spend": 5200, "impressions": 495000, "cpm": 10.51, "thumbstop": 15.2, "ctr": 0.86, "cvr": 2.6, "cpa": 58.1, "roas": 1.04 },
+      "ga4": { "engagedScrollPct": 36, "avgLpDwellSec": 49 },
+      "ltv": { "d90LtvToCac": 1.8, "refundRatePct": 5.2 },
+      "status": "fatiguing"
+    },
+    {
+      "id": "cr-108",
+      "name": "Quiz invite — find your match",
+      "attributes": { "hookType": "question", "angle": "personalized solution", "format": "UGC talking head", "creator": null, "lpArchetype": "quiz" },
+      "meta": { "spend": 6800, "impressions": 540000, "cpm": 12.59, "thumbstop": 25.3, "ctr": 1.64, "cvr": 3.1, "cpa": 44.2, "roas": 1.40 },
+      "ga4": { "engagedScrollPct": 74, "avgLpDwellSec": 118 },
+      "ltv": { "d90LtvToCac": 2.4, "refundRatePct": 5.9 },
+      "status": "testing"
+    }
+  ],
+  "moduleLearnings": [
+    {
+      "id": "AB-2026-03",
+      "module": "sticky_atc",
+      "test": "Sticky add-to-cart bar on listicle vs none (2026-03)",
+      "finding": "Collapsible sticky ATC bar lifted ATC +9% on pages ≥10 sections with no CVR downside.",
+      "effect": "+9% ATC",
+      "appliesTo": ["advertorial", "listicle-creator", "exploratory-story"],
+      "directive": "Always include a sticky ATC bar on long pages."
+    },
+    {
+      "id": "AB-2026-07",
+      "module": "stats_before_offer",
+      "test": "Clinical stats block placed before vs after first offer widget (2026-04)",
+      "finding": "Showing the 90/83/80 clinical tiles BEFORE the first offer lifted CVR +12% for cold (problem-aware) traffic; no effect for retargeting.",
+      "effect": "+12% CVR (cold traffic)",
+      "appliesTo": ["advertorial", "listicle-creator"],
+      "directive": "Order sections so clinical proof precedes the first offer block for cold traffic."
+    },
+    {
+      "id": "AB-2026-11",
+      "module": "single_price_frame",
+      "test": "'$5 shipping today' single frame vs '$0' + strikethrough mix (2026-05)",
+      "finding": "One consistent price frame ('Try it for $5 shipping · 3 full weeks') matched CVR (-0.4%, n.s.) and cut 90-day refund rate by 18% relative.",
+      "effect": "-18% refunds, CVR neutral",
+      "appliesTo": ["advertorial", "advertorial-compact", "listicle-creator", "exploratory-story"],
+      "directive": "Use the single '$5 shipping today' price frame; avoid mixing $0/$5/$43.20 in one viewport."
+    },
+    {
+      "id": "AB-2026-14",
+      "module": "creator_depth",
+      "test": "Deep creator personalization (quotes woven into body) vs headline-only swap (2026-06)",
+      "finding": "For creator-ad traffic, pages with ≥4 creator quotes below the fold had +14% engaged scroll and +8% ATC vs headline-only personalization.",
+      "effect": "+8% ATC (creator traffic)",
+      "appliesTo": ["listicle-creator"],
+      "directive": "When the ad has a creator, weave their voice through the whole page, not just the H1."
+    },
+    {
+      "id": "AB-2026-16",
+      "module": "press_bar_position",
+      "test": "Press logo bar above vs below before/afters (2026-06)",
+      "finding": "Press bar position had no measurable effect; before/afters above the fold beat press-first layouts on engaged scroll +6%.",
+      "effect": "+6% engaged scroll (B/A first)",
+      "appliesTo": ["advertorial"],
+      "directive": "Lead with before/after proof; keep press logos secondary."
+    },
+    {
+      "id": "AB-2026-19",
+      "module": "faq_objection_order",
+      "test": "FAQ ordered by GA4 exit-intent objections vs generic order (2026-07)",
+      "finding": "Opening the FAQ with the top pre-purchase objection measured in GA4 ('When will I be charged?') lifted CVR +4% on mobile.",
+      "effect": "+4% CVR (mobile)",
+      "appliesTo": ["advertorial", "advertorial-compact", "listicle-creator", "exploratory-story"],
+      "directive": "First FAQ item must answer the trial-billing objection."
+    }
+  ]
+}

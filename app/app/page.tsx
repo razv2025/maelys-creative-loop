@@ -5,8 +5,26 @@ import AnalysisCard from "@/components/AnalysisCard";
 import LandingPagePreview from "@/components/LandingPagePreview";
 import PerformanceDash from "@/components/PerformanceDash";
 import NextIteration from "@/components/NextIteration";
-import { computeLearnings, fleetPerformance } from "@/lib/mockPerformance";
-import type { Archetype, CreativeAnalysis, GenerateLpResponse, NextConcept } from "@/lib/types";
+import { computeLearnings, fleetPerformance, DATASET_META, MODULE_LEARNINGS } from "@/lib/mockPerformance";
+import type { Archetype, CreativeAnalysis, GenerateLpResponse, NextConcept, SourceType } from "@/lib/types";
+
+const SOURCE_CHIP: Record<SourceType, { bg: string; label: string }> = {
+  "ad-analysis": { bg: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", label: "ad analysis" },
+  "maelys-site": { bg: "bg-pink-400/15 text-pink-300 border-pink-400/30", label: "maelys.com" },
+  "internal-data": { bg: "bg-indigo-400/15 text-indigo-300 border-indigo-400/30", label: "internal data" },
+  competitor: { bg: "bg-amber-500/15 text-amber-300 border-amber-500/30", label: "competitor" },
+};
+
+function SourceChip({ type, detail }: { type?: SourceType; detail?: string }) {
+  if (!type || !SOURCE_CHIP[type]) return null;
+  const s = SOURCE_CHIP[type];
+  return (
+    <span className={`inline-block rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide ${s.bg}`}>
+      {s.label}
+      {detail ? ` · ${detail}` : ""}
+    </span>
+  );
+}
 
 const DEMO_ADS = [
   { file: "ugc-review-short.mp4", label: "UGC review — short", meta: "creator ad · 30s" },
@@ -42,6 +60,7 @@ export default function Home() {
   const [generatingLp, setGeneratingLp] = useState(false);
   const [lp, setLp] = useState<GenerateLpResponse | null>(null);
   const [mobile, setMobile] = useState(true);
+  const [showProv, setShowProv] = useState(true);
 
   // Stage 4
   const [concepts, setConcepts] = useState<NextConcept[] | null>(null);
@@ -333,6 +352,13 @@ export default function Home() {
                   </div>
                   <div className="flex gap-1">
                     <button
+                      onClick={() => setShowProv(!showProv)}
+                      className={`rounded px-2 py-0.5 text-[10px] font-semibold ${showProv ? "bg-emerald-500/20 text-emerald-300" : "text-[var(--chrome-muted)]"}`}
+                      title="Label every section with the data source that shaped it"
+                    >
+                      🏷 Provenance {showProv ? "on" : "off"}
+                    </button>
+                    <button
                       onClick={() => setMobile(true)}
                       className={`rounded px-2 py-0.5 text-[10px] ${mobile ? "bg-pink-400/20 text-pink-200" : "text-[var(--chrome-muted)]"}`}
                     >
@@ -347,7 +373,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="max-h-[75vh] overflow-y-auto rounded-b-xl border border-[var(--chrome-border)] bg-neutral-300 p-0">
-                  <LandingPagePreview content={lp.content} mobile={mobile} />
+                  <LandingPagePreview content={lp.content} mobile={mobile} showProvenance={showProv} />
                 </div>
               </div>
 
@@ -356,6 +382,39 @@ export default function Home() {
                   <div className="text-[11px] font-semibold uppercase tracking-wider text-emerald-300">Hook match</div>
                   <p className="mt-1 text-xs leading-relaxed">{lp.content.hookMatchNote}</p>
                 </div>
+
+                {lp.sourcesUsed.length > 0 && (
+                  <div className="rounded-xl border border-[var(--chrome-border)] bg-[var(--chrome-panel)] p-4">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--chrome-muted)]">
+                      Data sources used on this page
+                    </div>
+                    <ul className="mt-2 space-y-2">
+                      {lp.sourcesUsed.map((s, i) => (
+                        <li key={i} className="text-[11px] leading-relaxed">
+                          <SourceChip type={s.type} detail={s.source} />
+                          <span className="ml-1.5 text-[var(--chrome-muted)]">{s.usedFor}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {lp.structureDecisions.length > 0 && (
+                  <div className="rounded-xl border border-indigo-400/25 bg-indigo-400/5 p-4">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-indigo-300">
+                      Structure decisions — driven by data
+                    </div>
+                    <ul className="mt-2 space-y-2">
+                      {lp.structureDecisions.map((d, i) => (
+                        <li key={i} className="text-[11px] leading-relaxed">
+                          <SourceChip type={d.sourceType} detail={d.basedOn} />
+                          <span className="ml-1.5">{d.decision}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--chrome-muted)]">
                   Recommendations to beat the current pages
                 </div>
@@ -368,6 +427,11 @@ export default function Home() {
                       </span>
                     </div>
                     <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--chrome-muted)]">{r.detail}</p>
+                    {r.sourceType && (
+                      <div className="mt-2">
+                        <SourceChip type={r.sourceType} detail={r.source} />
+                      </div>
+                    )}
                   </div>
                 ))}
                 <button
@@ -391,10 +455,36 @@ export default function Home() {
             <p className="mt-1 text-sm text-[var(--chrome-muted)]">
               Every creative is tagged with its attribute taxonomy at birth (hook type, angle, format, LP archetype).
               Performance is then measured <em>per attribute</em>, not just per ad — that’s what makes the loop
-              self-improving. <span className="text-amber-300/80">Data below is synthetic for the demo.</span>
+              self-improving.{" "}
+              <span className="text-amber-300/80">
+                Data source: <code className="text-[11px]">data/performance.json</code> — a fixed synthetic stand-in for
+                the unified internal data ({DATASET_META.standsInFor.join(" + ")}), window {DATASET_META.window}.
+              </span>
             </p>
           </div>
           <PerformanceDash fleet={fleet} learnings={learnings} />
+
+          <div className="rounded-xl border border-indigo-400/25 bg-indigo-400/5 p-4">
+            <div className="mb-1 flex items-baseline justify-between">
+              <h3 className="text-sm font-semibold text-indigo-300">A/B test archive → standing directives</h3>
+              <SourceChip type="internal-data" detail="data/performance.json" />
+            </div>
+            <p className="mb-3 text-[11px] text-[var(--chrome-muted)]">
+              These module-level learnings are injected into every LP generation — flip on “Provenance” in stage 2 to
+              see exactly where each one shaped the page.
+            </p>
+            <div className="grid gap-2 md:grid-cols-2">
+              {MODULE_LEARNINGS.map((l) => (
+                <div key={l.id} className="rounded-lg bg-black/20 p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300">{l.id}</span>
+                    <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[9px] font-bold text-emerald-300">{l.effect}</span>
+                  </div>
+                  <p className="mt-1 text-[11px] leading-relaxed text-[var(--chrome-muted)]">{l.finding}</p>
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="flex justify-end">
             <button
               onClick={() => goto(3)}

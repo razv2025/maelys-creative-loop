@@ -66,6 +66,24 @@ briefs with explicit hypotheses at three risk levels (safe iteration, new-hook
 test, exploratory swing). Each ships with a production-ready Veo prompt;
 one click generates a real 8-second 9:16 video teaser via Veo.
 
+## Data-source provenance — proving the sources are used
+
+The assignment lists competitive data (Ads Library, competitor sites) and
+internal data (Meta KPIs, GA4, LTV, A/B tests) as inputs. The prototype
+doesn't just claim to use them — it labels every use:
+
+| Source | Where it lives | How it's used | Label |
+|---|---|---|---|
+| MAËLYS site (5 scraped LPs) | `../research/lp-analysis.md`, `lib/assets.ts`, `lib/maelys.ts` | Archetype schemas, voice/compliance rules, real TBYB offer facts, brand tokens, **real CDN imagery** (jar, clinical before/after, texture, press logos) | pink `maelys.com` chips |
+| Competitor funnels (4, scraped live) | `../research/competitor-insights.json` | Injected into generation prompts; recommendations and exploratory ad concepts must cite insight ids (e.g. `[truly-beauty-1]`) | amber `competitor` chips |
+| Unified internal data (fixed synthetic) | `data/performance.json` | Fleet KPIs + **module-level A/B learnings** (`AB-2026-*`) whose directives the LP generator must apply and cite (stats-before-offer, single price frame, sticky ATC, FAQ objection order…) | indigo `internal data` chips |
+| The ad itself | Gemini video analysis | Hook-matched H1, creator voice, hedged claims | green `ad analysis` chips |
+
+Toggle **🏷 Provenance** on the generated page to see per-section chips; the
+sidebar shows "Data sources used", "Structure decisions — driven by data"
+(each citing its learning id), and source-tagged recommendations. AI-written
+testimonial copy is explicitly labeled `AI copy · illustrative`.
+
 ## Stack
 
 Next.js 16 (App Router) · TypeScript · Tailwind 4 · `@google/genai`

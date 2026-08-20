@@ -27,7 +27,12 @@ Return ONLY a JSON object with exactly this shape (no markdown):
 }
 `;
 
-export function lpPrompt(analysis: CreativeAnalysis, archetype: string): string {
+export function lpPrompt(
+  analysis: CreativeAnalysis,
+  archetype: string,
+  moduleLearningsBlock: string,
+  competitorBlock: string
+): string {
   return `
 You are the landing-page generator of MAËLYS Cosmetics' acquisition engine.
 A shopper just clicked a Meta video ad. Your job: a landing page that CONTINUES
@@ -35,14 +40,26 @@ that exact ad — same hook, same angle, same voice — so the promise she click
 on is the first thing she sees ("message match"). Everything must be grounded
 in MAËLYS's real funnel facts below; never invent prices, stats, or offers.
 
-== THE AD SHE CLICKED (structured analysis) ==
+== THE AD SHE CLICKED (structured analysis) — source type "ad-analysis" ==
 ${JSON.stringify(analysis, null, 2)}
 
-== MAËLYS FUNNEL FACTS (use these verbatim numbers) ==
+== MAËLYS FUNNEL FACTS (use these verbatim numbers) — source type "maelys-site", source "offer facts (scraped LPs)" ==
 ${OFFER_FACTS}
 
-== VOICE ==
+== VOICE — source type "maelys-site" ==
 ${VOICE_RULES}
+
+== INTERNAL DATA: module-level A/B learnings that apply to this archetype — source type "internal-data", cite by [id] ==
+(unified dataset: Meta insights + GA4 + LTV + A/B archive)
+${moduleLearningsBlock}
+You MUST follow every directive above when structuring the page, and record
+each one you applied in "structureDecisions" (cite the [id]).
+
+== COMPETITIVE DATA: scraped competitor funnels — source type "competitor", cite by [id] ==
+${competitorBlock}
+Use competitor insights ONLY for differentiation and for the recommendations
+list (never copy a competitor's claims). When a recommendation is inspired by
+a competitor tactic or counters one, cite its [id] as the source.
 
 == TARGET ARCHETYPE: "${archetype}" ==
 ${ARCHETYPE_SPECS}
@@ -79,17 +96,26 @@ Return ONLY a JSON object:
     "seo": { "title": "...", "slug": "get-dreamy-..." }
   },
   "recommendations": [
-    { "title": "...", "detail": "why + what to test, referencing this specific ad/page", "expectedImpact": "'ATC lift' | 'CVR lift' | 'trust' | 'AOV lift'" }
+    { "title": "...", "detail": "why + what to test, referencing this specific ad/page", "expectedImpact": "'ATC lift' | 'CVR lift' | 'trust' | 'AOV lift'", "sourceType": "'ad-analysis' | 'maelys-site' | 'internal-data' | 'competitor'", "source": "the [id] or short name of what inspired this rec" }
+  ],
+  "structureDecisions": [
+    { "decision": "what you did to the page structure/copy", "basedOn": "[id] of the learning/insight that drove it", "sourceType": "'internal-data' | 'competitor' | 'ad-analysis' | 'maelys-site'" }
+  ],
+  "sourcesUsed": [
+    { "type": "'ad-analysis' | 'maelys-site' | 'internal-data' | 'competitor'", "source": "specific id/name", "usedFor": "one line: what it shaped on this page" }
   ]
 }
-Provide 4-6 recommendations: concrete, testable ideas to beat MAËLYS's current pages for THIS traffic (sticky ATC, hook-match depth, quiz hand-off, offer framing, etc.).
-Reviews: 6 items. FAQ: 4 items. beforeAfter cards: 3-4. All copy in MAËLYS voice.
+Provide 4-6 recommendations: concrete, testable ideas to beat MAËLYS's current pages for THIS traffic — every one must carry sourceType+source. At least one recommendation must come from a competitor insight [id] and at least one from an internal-data learning [id].
+structureDecisions: list EVERY applied internal-data directive plus any structural choice driven by the ad analysis (e.g. "listicle chosen because creator UGC ad").
+sourcesUsed: 4-8 entries summarizing every data source consulted for this page.
+Reviews: 6 items. FAQ: 4 items (first item MUST answer trial billing per [AB-2026-19]). beforeAfter cards: 3-4. All copy in MAËLYS voice.
 `;
 }
 
 export function nextConceptsPrompt(
   analysis: CreativeAnalysis,
-  learnings: AttributeLearning[]
+  learnings: AttributeLearning[],
+  competitorBlock = "(no competitor data available)"
 ): string {
   return `
 You are the concept generator of MAËLYS Cosmetics' self-improving acquisition
@@ -102,14 +128,19 @@ Hook: ${analysis.hook.text} (type: ${analysis.hook.type})
 Angle: ${analysis.angle} | Promise: ${analysis.promise}
 Format: ${analysis.format.style} | Audience: ${analysis.audience.persona}
 
-== ATTRIBUTE-LEVEL LEARNINGS FROM THE ACCOUNT (this cycle) ==
+== ATTRIBUTE-LEVEL LEARNINGS FROM THE ACCOUNT (this cycle) — source "internal-data" ==
 ${JSON.stringify(learnings, null, 2)}
+
+== COMPETITIVE DATA: what competitors run — source "competitor", cite by [id] ==
+${competitorBlock}
 
 ${VOICE_RULES}
 
 Generate 3 NEXT-ITERATION ad concepts. Each must exploit at least one learning
-(say which). Vary the risk profile: #1 = safe iteration on the winner, #2 =
-new-hook test on a proven angle, #3 = exploratory swing (new angle or format).
+(say which in basedOnLearning — cite internal dimensions and/or competitor [id]s).
+Vary the risk profile: #1 = safe iteration on the winner, #2 = new-hook test on
+a proven angle, #3 = exploratory swing — prefer an angle from the competitor
+angle-gap list for #3, citing it.
 
 Each concept needs a "veoPrompt": a production-ready text-to-video prompt for
 Google Veo (8-second vertical 9:16 ad clip). Veo prompt best practices: one

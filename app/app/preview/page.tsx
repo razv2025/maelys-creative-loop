@@ -169,15 +169,17 @@ const listicle: LandingPageContent = {
 export default function Preview() {
   const [which, setWhich] = useState<"advertorial" | "listicle">("advertorial");
   const [mobile, setMobile] = useState(false);
+  const [prov, setProv] = useState(true);
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
       <div className="mb-4 flex gap-2">
         <button onClick={() => setWhich("advertorial")} className={`rounded-full border px-4 py-1.5 text-xs ${which === "advertorial" ? "border-pink-400 text-pink-300" : "border-[var(--chrome-border)]"}`}>Advertorial fixture</button>
         <button onClick={() => setWhich("listicle")} className={`rounded-full border px-4 py-1.5 text-xs ${which === "listicle" ? "border-pink-400 text-pink-300" : "border-[var(--chrome-border)]"}`}>Listicle fixture</button>
         <button onClick={() => setMobile(!mobile)} className="rounded-full border border-[var(--chrome-border)] px-4 py-1.5 text-xs">{mobile ? "📱 mobile" : "🖥 desktop"}</button>
+        <button onClick={() => setProv(!prov)} className={`rounded-full border px-4 py-1.5 text-xs ${prov ? "border-emerald-400 text-emerald-300" : "border-[var(--chrome-border)]"}`}>🏷 provenance {prov ? "on" : "off"}</button>
       </div>
       <div className="rounded-xl bg-neutral-300 p-4">
-        <LandingPagePreview content={which === "advertorial" ? advertorial : listicle} mobile={mobile} />
+        <LandingPagePreview content={which === "advertorial" ? advertorial : listicle} mobile={mobile} showProvenance={prov} />
       </div>
     </div>
   );

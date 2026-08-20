@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateJson } from "@/lib/gemini";
 import { nextConceptsPrompt } from "@/lib/prompts";
+import { competitorPromptBlock } from "@/lib/grounding";
 import type { NextConcept } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest) {
     if (!analysis || !learnings)
       return NextResponse.json({ error: "analysis and learnings required" }, { status: 400 });
     const result = await generateJson<{ concepts: NextConcept[] }>(
-      nextConceptsPrompt(analysis, learnings),
+      nextConceptsPrompt(analysis, learnings, competitorPromptBlock()),
       0.9
     );
     return NextResponse.json(result);
