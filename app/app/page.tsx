@@ -222,13 +222,21 @@ export default function Home() {
                   setSelectedDemo(d.file);
                   setUploadFile(null);
                 }}
+                onMouseEnter={(e) => e.currentTarget.querySelector("video")?.play().catch(() => {})}
+                onMouseLeave={(e) => {
+                  const v = e.currentTarget.querySelector("video");
+                  if (v) {
+                    v.pause();
+                    v.currentTime = 0;
+                  }
+                }}
                 className={`overflow-hidden rounded-xl border text-left transition ${
                   selectedDemo === d.file && !uploadFile
                     ? "border-pink-400/70 ring-1 ring-pink-400/40"
                     : "border-[var(--chrome-border)] hover:border-pink-400/40"
                 }`}
               >
-                <video src={`/demo-ads/${d.file}`} muted playsInline preload="metadata" className="aspect-video w-full object-cover" />
+                <video src={`/demo-ads/${d.file}`} muted loop playsInline preload="metadata" className="aspect-video w-full object-cover" />
                 <div className="bg-[var(--chrome-panel)] p-3">
                   <div className="text-xs font-semibold">{d.label}</div>
                   <div className="text-[10px] text-[var(--chrome-muted)]">{d.meta}</div>
