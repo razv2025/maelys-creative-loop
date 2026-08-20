@@ -9,11 +9,17 @@ export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
   try {
-    const { analysis, archetype } = await req.json();
+    const { analysis, archetype, direction } = await req.json();
     if (!analysis || !archetype)
       return NextResponse.json({ error: "analysis and archetype required" }, { status: 400 });
     const result = await generateJson<GenerateLpResponse>(
-      lpPrompt(analysis, archetype, moduleLearningsPromptBlock(archetype), competitorPromptBlock()),
+      lpPrompt(
+        analysis,
+        archetype,
+        moduleLearningsPromptBlock(archetype),
+        competitorPromptBlock(),
+        typeof direction === "string" ? direction.slice(0, 2000) : undefined
+      ),
       0.8
     );
     result.sourcesUsed ??= [];

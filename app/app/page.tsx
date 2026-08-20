@@ -12,6 +12,7 @@ const SOURCE_CHIP: Record<SourceType, { bg: string; label: string }> = {
   "maelys-site": { bg: "bg-pink-400/15 text-pink-300 border-pink-400/30", label: "maelys.com" },
   "internal-data": { bg: "bg-indigo-400/15 text-indigo-300 border-indigo-400/30", label: "internal data" },
   competitor: { bg: "bg-amber-500/15 text-amber-300 border-amber-500/30", label: "competitor" },
+  operator: { bg: "bg-sky-500/15 text-sky-300 border-sky-500/30", label: "your direction" },
 };
 
 function SourceChip({ type, detail }: { type?: SourceType; detail?: string }) {
@@ -60,6 +61,7 @@ export default function Home() {
   const [lp, setLp] = useState<GenerateLpResponse | null>(null);
   const [mobile, setMobile] = useState(true);
   const [showProv, setShowProv] = useState(true);
+  const [direction, setDirection] = useState("");
 
   // Stage 4
   const [concepts, setConcepts] = useState<NextConcept[] | null>(null);
@@ -115,7 +117,7 @@ export default function Home() {
       const res = await fetch("/api/generate-lp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ analysis, archetype }),
+        body: JSON.stringify({ analysis, archetype, direction: direction.trim() || undefined }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Generation failed");
@@ -326,6 +328,25 @@ export default function Home() {
                 <p className="mt-1 text-[11px] leading-relaxed text-[var(--chrome-muted)]">{a.desc}</p>
               </button>
             ))}
+          </div>
+
+          <div>
+            <label htmlFor="direction" className="text-[11px] font-semibold uppercase tracking-wider text-[var(--chrome-muted)]">
+              Creative direction <span className="normal-case font-normal">(optional — added to the generation prompt)</span>
+            </label>
+            <textarea
+              id="direction"
+              value={direction}
+              onChange={(e) => setDirection(e.target.value)}
+              rows={2}
+              maxLength={2000}
+              placeholder={'e.g. "Lead with the GLP-1 angle", "warmer, big-sister tone", "emphasize the money-back guarantee, target women 55+"…'}
+              className="mt-1.5 w-full resize-y rounded-xl border border-[var(--chrome-border)] bg-[var(--chrome-panel)] p-3 text-sm placeholder:text-[var(--chrome-muted)]/60 focus:border-sky-400/50 focus:outline-none"
+            />
+            <p className="mt-1 text-[10px] text-[var(--chrome-muted)]">
+              Your direction is honored for tone and emphasis but can’t override compliance hedging or the real offer
+              facts — and it shows up in the provenance panel as <span className="text-sky-300">your direction</span>.
+            </p>
           </div>
 
           <div className="flex items-center gap-3">

@@ -15,6 +15,7 @@ const PROV_STYLE: Record<SourceType | "generated", { bg: string; label: string }
   "maelys-site": { bg: "#c94f74", label: "maelys.com" },
   "internal-data": { bg: "#57539e", label: "internal data" },
   competitor: { bg: "#b45309", label: "competitor" },
+  operator: { bg: "#0369a1", label: "your direction" },
   generated: { bg: "#6b7280", label: "AI copy · illustrative" },
 };
 

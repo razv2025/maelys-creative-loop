@@ -130,7 +130,8 @@ export type SourceType =
   | "ad-analysis" // the uploaded video, analyzed by Gemini
   | "maelys-site" // scraped maelyscosmetics.com LPs: assets, offer facts, voice
   | "internal-data" // unified performance dataset (Meta+GA4+LTV+A/B)
-  | "competitor"; // scraped competitor funnels
+  | "competitor" // scraped competitor funnels
+  | "operator"; // free-text creative direction typed by the user
 
 export interface SourceUse {
   type: SourceType;

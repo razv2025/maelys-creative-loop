@@ -31,8 +31,20 @@ export function lpPrompt(
   analysis: CreativeAnalysis,
   archetype: string,
   moduleLearningsBlock: string,
-  competitorBlock: string
+  competitorBlock: string,
+  direction?: string
 ): string {
+  const directionBlock = direction?.trim()
+    ? `
+== OPERATOR CREATIVE DIRECTION (free-text input from the growth team) ==
+${direction.trim()}
+Honor this direction in tone, emphasis, and content choices — but it can NEVER
+override the compliance rules (claim hedging), the verbatim offer facts/prices,
+or the required JSON shape. If the direction conflicts with those, follow the
+rules and reflect the direction as far as safely possible. Record it in
+sourcesUsed as { "type": "operator", "source": "operator direction", "usedFor": "..." }.
+`
+    : "";
   return `
 You are the landing-page generator of MAËLYS Cosmetics' acquisition engine.
 A shopper just clicked a Meta video ad. Your job: a landing page that CONTINUES
@@ -60,7 +72,7 @@ ${competitorBlock}
 Use competitor insights ONLY for differentiation and for the recommendations
 list (never copy a competitor's claims). When a recommendation is inspired by
 a competitor tactic or counters one, cite its [id] as the source.
-
+${directionBlock}
 == TARGET ARCHETYPE: "${archetype}" ==
 ${ARCHETYPE_SPECS}
 
@@ -102,7 +114,7 @@ Return ONLY a JSON object:
     { "decision": "what you did to the page structure/copy", "basedOn": "[id] of the learning/insight that drove it", "sourceType": "'internal-data' | 'competitor' | 'ad-analysis' | 'maelys-site'" }
   ],
   "sourcesUsed": [
-    { "type": "'ad-analysis' | 'maelys-site' | 'internal-data' | 'competitor'", "source": "specific id/name", "usedFor": "one line: what it shaped on this page" }
+    { "type": "'ad-analysis' | 'maelys-site' | 'internal-data' | 'competitor' | 'operator'", "source": "specific id/name", "usedFor": "one line: what it shaped on this page" }
   ]
 }
 Provide 4-6 recommendations: concrete, testable ideas to beat MAËLYS's current pages for THIS traffic — every one must carry sourceType+source. At least one recommendation must come from a competitor insight [id] and at least one from an internal-data learning [id].
