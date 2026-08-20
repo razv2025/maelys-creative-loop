@@ -8,14 +8,16 @@ per creative attribute, and those learnings generate the next ad — including a
 real AI-generated video teaser (Google Veo).
 
 ```
-┌─────────────┐   ┌──────────────────┐   ┌──────────────────┐   ┌─────────────────┐
-│ 1. VIDEO AD │ → │ 2. LANDING PAGE  │ → │ 3. PERFORMANCE   │ → │ 4. NEXT CREATIVE │
-│  Gemini     │   │  hook-matched,   │   │  attribute-level │   │  concepts + Veo  │
-│  video      │   │  MAËLYS arche-   │   │  learnings       │   │  8s teaser       │──┐
-│  analysis   │   │  types + voice   │   │  (synthetic)     │   │                  │  │
-└─────────────┘   └──────────────────┘   └──────────────────┘   └─────────────────┘  │
-      ▲                                                                              │
-      └──────────────────────────── the loop closes ─────────────────────────────────┘
+┌─────────────┐   ┌──────────────────┐   ┌──────────────────────┐
+│ 1. VIDEO AD │ → │ 2. LANDING PAGE  │ → │ 3. NEXT CREATIVE     │
+│  Gemini     │   │  hook-matched,   │   │  concepts + Veo      │──┐
+│  video      │   │  MAËLYS arche-   │   │  8s teaser           │  │
+│  analysis   │   │  types + voice   │   │                      │  │
+└─────────────┘   └────────▲─────────┘   └──────────▲───────────┘  │
+      ▲                    └──── internal data ─────┘              │
+      │             (Meta+GA4+LTV+A/B — a SOURCE for generation;   │
+      │              the new page's own performance is unknown)    │
+      └──────────────────────── the loop closes ───────────────────┘
 ```
 
 ## Run it
@@ -53,18 +55,17 @@ page renders in an authentic MAËLYS skin (brand tokens extracted from their
 live CSS) with a recommendations panel of testable ideas to beat the current
 pages.
 
-**3 · Performance** — synthetic Meta KPIs (CPM, thumbstop, CTR, CVR, CPA, ROAS)
-for a fleet of creatives, each tagged with its attribute taxonomy. Learnings
-are computed per **attribute** (hook type, format, angle, LP archetype), not
-per ad — the core mechanism that makes the loop self-improving rather than
-merely self-measuring. In production this layer is the Meta Marketing API +
-GA4 + LTV join described in the Part 1 deck.
-
-**4 · Next Creative** (`/api/next-concepts`, `/api/generate-video`) — the
-concept generator is prompted with the measured learnings and returns three
+**3 · Next Creative** (`/api/next-concepts`, `/api/generate-video`) — the
+unified internal dataset (`data/performance.json`: Meta KPIs + GA4 + LTV +
+A/B archive per Genome-tagged creative) is consumed here as a **data source**
+— deliberately not shown as a dashboard, because the just-generated page's
+own performance is unknown until it runs. Attribute-level learnings (per hook
+type, format, angle, LP archetype) plus competitor angle gaps prompt three
 briefs with explicit hypotheses at three risk levels (safe iteration, new-hook
-test, exploratory swing). Each ships with a production-ready Veo prompt;
-one click generates a real 8-second 9:16 video teaser via Veo.
+test, exploratory swing), each citing the learning or competitor insight it
+exploits. Each ships with a production-ready Veo prompt; one click generates
+a real 8-second 9:16 video teaser via Veo. In production the measurement join
+is the Meta Marketing API + GA4 + LTV pipeline described in the Part 1 deck.
 
 ## Data-source provenance — proving the sources are used
 

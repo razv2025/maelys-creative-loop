@@ -3,7 +3,6 @@
 import { useMemo, useRef, useState } from "react";
 import AnalysisCard from "@/components/AnalysisCard";
 import LandingPagePreview from "@/components/LandingPagePreview";
-import PerformanceDash from "@/components/PerformanceDash";
 import NextIteration from "@/components/NextIteration";
 import { computeLearnings, fleetPerformance, DATASET_META, MODULE_LEARNINGS } from "@/lib/mockPerformance";
 import type { Archetype, CreativeAnalysis, GenerateLpResponse, NextConcept, SourceType } from "@/lib/types";
@@ -40,7 +39,7 @@ const ARCHETYPES: { id: Archetype; label: string; desc: string }[] = [
   { id: "exploratory-story", label: "Story (exploratory)", desc: "Editorial first-person narrative mirroring the ad. New test cell." },
 ];
 
-const STEPS = ["Ad Intelligence", "Landing Page", "Performance", "Next Creative"];
+const STEPS = ["Ad Intelligence", "Landing Page", "Next Creative"];
 
 export default function Home() {
   const [step, setStep] = useState(0);
@@ -66,11 +65,10 @@ export default function Home() {
   const [concepts, setConcepts] = useState<NextConcept[] | null>(null);
   const [generatingConcepts, setGeneratingConcepts] = useState(false);
 
-  const fleet = useMemo(
-    () => (analysis ? fleetPerformance(adName, analysis) : fleetPerformance()),
-    [analysis, adName]
-  );
-  const learnings = useMemo(() => computeLearnings(fleet), [fleet]);
+  // The unified internal dataset is a DATA SOURCE for generation — we can't
+  // know how the new page performs. Learnings are computed from the fixed
+  // historical fleet only.
+  const learnings = useMemo(() => computeLearnings(fleetPerformance()), []);
 
   function goto(s: number) {
     setStep(s);
@@ -447,7 +445,7 @@ export default function Home() {
                   className="w-full rounded-lg px-6 py-2.5 text-sm font-semibold text-black hover:brightness-110"
                   style={{ background: "var(--m-cta)" }}
                 >
-                  See how it performs →
+                  Close the loop: next creative →
                 </button>
               </div>
             </div>
@@ -455,66 +453,61 @@ export default function Home() {
         </section>
       )}
 
-      {/* ---- Stage 3: Performance ---- */}
-      {step === 2 && (
+      {/* ---- Stage 3: Next creative ---- */}
+      {step === 2 && analysis && (
         <section className="space-y-6">
           <div>
-            <h2 className="text-lg font-semibold">3 · Close the measurement loop</h2>
+            <h2 className="text-lg font-semibold">3 · The loop closes: internal data → new creative</h2>
             <p className="mt-1 text-sm text-[var(--chrome-muted)]">
-              Every creative is tagged with its attribute taxonomy at birth (hook type, angle, format, LP archetype).
-              Performance is then measured <em>per attribute</em>, not just per ad — that’s what makes the loop
-              self-improving.{" "}
-              <span className="text-amber-300/80">
-                Data source: <code className="text-[11px]">data/performance.json</code> — a fixed synthetic stand-in for
-                the unified internal data ({DATASET_META.standsInFor.join(" + ")}), window {DATASET_META.window}.
-              </span>
+              The new page's own performance is unknown until it runs — so this stage consumes the{" "}
+              <em>historical</em> internal data as a source. The concept generator is prompted with attribute-level
+              learnings (and competitor angle gaps); each concept states its hypothesis, cites what it exploits, and
+              ships with a production-ready Veo prompt — generate a real 8-second AI video teaser right here.
             </p>
           </div>
-          <PerformanceDash fleet={fleet} learnings={learnings} />
 
           <div className="rounded-xl border border-indigo-400/25 bg-indigo-400/5 p-4">
-            <div className="mb-1 flex items-baseline justify-between">
-              <h3 className="text-sm font-semibold text-indigo-300">A/B test archive → standing directives</h3>
+            <div className="mb-1 flex items-baseline justify-between gap-2">
+              <h3 className="text-sm font-semibold text-indigo-300">Inputs consumed by the concept generator</h3>
               <SourceChip type="internal-data" detail="data/performance.json" />
             </div>
             <p className="mb-3 text-[11px] text-[var(--chrome-muted)]">
-              These module-level learnings are injected into every LP generation — flip on “Provenance” in stage 2 to
-              see exactly where each one shaped the page.
+              Attribute-level learnings computed from the unified historical dataset ({DATASET_META.standsInFor.join(" + ")},
+              window {DATASET_META.window}) — plus competitor angle gaps (amber-chipped in the concepts below).
             </p>
             <div className="grid gap-2 md:grid-cols-2">
-              {MODULE_LEARNINGS.map((l) => (
-                <div key={l.id} className="rounded-lg bg-black/20 p-3">
+              {learnings.map((l) => (
+                <div key={l.dimension} className="rounded-lg bg-black/20 p-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300">{l.id}</span>
-                    <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[9px] font-bold text-emerald-300">{l.effect}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300">{l.dimension}</span>
+                    <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[9px] font-bold text-emerald-300">
+                      +{l.liftPct}% ROAS
+                    </span>
                   </div>
-                  <p className="mt-1 text-[11px] leading-relaxed text-[var(--chrome-muted)]">{l.finding}</p>
+                  <div className="mt-1 text-xs">
+                    <span className="font-semibold text-emerald-300">▲ {l.winner}</span>
+                    <span className="mx-1.5 text-[var(--chrome-muted)]">beats</span>
+                    <span className="font-semibold text-red-300/80">▼ {l.loser}</span>
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
-          <div className="flex justify-end">
-            <button
-              onClick={() => goto(3)}
-              className="rounded-lg px-6 py-2.5 text-sm font-semibold text-black hover:brightness-110"
-              style={{ background: "var(--m-cta)" }}
-            >
-              Generate the next creative →
-            </button>
-          </div>
-        </section>
-      )}
-
-      {/* ---- Stage 4: Next creative ---- */}
-      {step === 3 && analysis && (
-        <section className="space-y-6">
-          <div>
-            <h2 className="text-lg font-semibold">4 · The loop closes: learnings → new creative</h2>
-            <p className="mt-1 text-sm text-[var(--chrome-muted)]">
-              The concept generator is prompted with the measured attribute learnings. Each concept states its
-              hypothesis, exploits a specific learning, and ships with a production-ready Veo prompt — generate a real
-              8-second AI video teaser right here.
-            </p>
+            <details className="mt-3">
+              <summary className="cursor-pointer text-[11px] font-semibold text-indigo-300">
+                A/B test archive → standing directives (also applied to the landing page in stage 2)
+              </summary>
+              <div className="mt-2 grid gap-2 md:grid-cols-2">
+                {MODULE_LEARNINGS.map((l) => (
+                  <div key={l.id} className="rounded-lg bg-black/20 p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300">{l.id}</span>
+                      <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[9px] font-bold text-emerald-300">{l.effect}</span>
+                    </div>
+                    <p className="mt-1 text-[11px] leading-relaxed text-[var(--chrome-muted)]">{l.finding}</p>
+                  </div>
+                ))}
+              </div>
+            </details>
           </div>
           {!concepts && (
             <button
