@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creative Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Poppins:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --ink:#120d0e; --paper:#fdfbf9; --panel:#f6f3f0; --panel2:#efe9e4;
+    --pink:#ffafc4; --pink-deep:#c94f74; --pink-soft:#fbe3ec;
+    --purple:#57539e; --lavender:#eae7ff;
+    --muted:#7a716c; --line:#e3dcd6; --good:#1e7c3c;
+    --serif:"Fraunces",Georgia,serif; --sans:"Poppins",-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:#1c1817;font-family:var(--sans);color:var(--ink)}
+
+  #stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  .slide{width:1280px;height:720px;background:var(--paper);position:absolute;
+    padding:64px 72px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 60px rgba(0,0,0,.5)}
+  .slide.active{display:flex}
+
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--pink-deep);margin-bottom:14px}
+  h1{font-family:var(--serif);font-weight:500;font-size:54px;line-height:1.08;text-wrap:balance}
+  h2{font-family:var(--serif);font-weight:500;font-size:38px;line-height:1.12;text-wrap:balance;margin-bottom:10px}
+  h3{font-size:15px;font-weight:600}
+  .sub{font-size:16px;color:var(--muted);max-width:62ch;line-height:1.55;margin-top:14px}
+  .lead{font-size:17px;line-height:1.6;max-width:66ch}
+  .grow{flex:1;min-height:0}
+  .footer{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);
+    border-top:1px solid var(--line);padding-top:14px;margin-top:auto}
+  .footer b{color:var(--ink);font-weight:600}
+  .num{font-variant-numeric:tabular-nums}
+
+  .cols{display:grid;gap:20px}
+  .c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:1fr 1fr 1fr}
+  .card{background:var(--panel);border-radius:14px;padding:20px 22px}
+  .card h3{margin-bottom:8px}
+  .card p,.card li{font-size:13.5px;line-height:1.55;color:#41403e}
+  .card.pink{background:var(--pink-soft)}
+  .card.lav{background:var(--lavender)}
+  .card.dark{background:var(--ink);color:#f5f0ee}
+  .card.dark p{color:#cfc7c3}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    background:var(--ink);color:#fff;border-radius:999px;padding:4px 11px;margin-bottom:10px}
+  .tag.p{background:var(--purple)} .tag.k{background:var(--pink-deep)} .tag.g{background:var(--good)}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;
+    padding:8px 12px;border-bottom:2px solid var(--ink)}
+  td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.45}
+  table.tight td{padding:6px 10px;line-height:1.4}
+  td b{font-weight:600}
+  .quote{font-family:var(--serif);font-style:italic;font-size:21px;line-height:1.45;color:var(--ink)}
+  ul.tick{list-style:none}
+  ul.tick li{padding-left:22px;position:relative;margin-bottom:8px;font-size:13.5px;line-height:1.5}
+  ul.tick li::before{content:"✓";position:absolute;left:0;color:var(--good);font-weight:700}
+  ul.dash li{margin-left:18px;margin-bottom:7px;font-size:13.5px;line-height:1.5}
+
+  .pill{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:999px;
+    padding:5px 12px;font-size:12px;font-weight:500;margin:0 6px 8px 0}
+  .stat{font-family:var(--serif);font-size:46px;font-weight:600;color:var(--pink-deep);line-height:1}
+  .statlab{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+
+  #hud{position:fixed;right:18px;bottom:14px;color:#8d8580;font-size:12px;font-family:var(--sans);z-index:5}
+  #hint{position:fixed;left:18px;bottom:14px;color:#8d8580;font-size:11px;z-index:5}
+
+  @media print{
+    body{background:#fff}
+    #stage{position:static;display:block}
+    .slide{display:flex !important;position:relative;transform:none !important;box-shadow:none;
+      page-break-after:always;break-after:page}
+    #hud,#hint{display:none}
+  }
+  @page{size:1280px 720px;margin:0}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- ============ 1 · TITLE ============ -->
+<section class="slide">
+  <div style="height:70px"></div>
+  <div class="kicker">MAËLYS · Head of AI · Home Assignment</div>
+  <h1 style="font-size:88px">Creative <em style="color:var(--pink-deep)">Loop</em></h1>
+  <p class="sub" style="font-size:20px;max-width:56ch;margin-top:22px">
+    An AI-powered, self-improving acquisition engine — a closed feedback loop
+    between creative production and media performance.
+  </p>
+  <div class="grow"></div>
+  <div style="display:flex;gap:10px;margin-bottom:26px">
+    <span class="pill">Part 1 · System design</span>
+    <span class="pill">Part 2 · Working prototype: video ad → landing page → next creative</span>
+  </div>
+  <div class="footer"><span><b>Raz Vakil</b> · August 2026</span><span>Built on a teardown of MAËLYS's five live GET-DREAMY landing pages + real ad creative</span></div>
+</section>
+
+<!-- ============ 2 · PROBLEM ============ -->
+<section class="slide">
+  <div class="kicker">Where the money leaks today</div>
+  <h2>Nine steps, each with AI inside — and nothing learning between them</h2>
+  <div class="grow" style="display:flex;flex-direction:column;justify-content:center;gap:22px">
+    <svg viewBox="0 0 1136 120" style="width:100%">
+      <g font-family="Poppins,sans-serif" font-size="12" text-anchor="middle">
+        <!-- 9 boxes -->
+        <g fill="#f6f3f0" stroke="#e3dcd6">
+          <rect x="0" y="30" width="112" height="52" rx="10"/><rect x="128" y="30" width="112" height="52" rx="10"/>
+          <rect x="256" y="30" width="112" height="52" rx="10"/><rect x="384" y="30" width="112" height="52" rx="10"/>
+          <rect x="512" y="30" width="112" height="52" rx="10"/><rect x="640" y="30" width="112" height="52" rx="10"/>
+          <rect x="768" y="30" width="112" height="52" rx="10"/><rect x="896" y="30" width="112" height="52" rx="10"/>
+          <rect x="1024" y="30" width="112" height="52" rx="10"/>
+        </g>
+        <g fill="#120d0e" font-weight="600">
+          <text x="56" y="61">Concepts</text><text x="184" y="61">Scripts</text><text x="312" y="61">Content</text>
+          <text x="440" y="61">Editing</text><text x="568" y="61">Launch</text><text x="696" y="61">Test</text>
+          <text x="824" y="61">Scale</text><text x="952" y="61">Iterate</text><text x="1080" y="61">Retire</text>
+        </g>
+        <g stroke="#bcb2ac" stroke-width="1.5" fill="none">
+          <path d="M113 56h13"/><path d="M241 56h13"/><path d="M369 56h13"/><path d="M497 56h13"/>
+          <path d="M625 56h13"/><path d="M753 56h13"/><path d="M881 56h13"/><path d="M1009 56h13"/>
+        </g>
+        <g fill="#c94f74" font-size="10" font-weight="700">
+          <text x="56" y="20">AI TOOL</text><text x="184" y="20">AI TOOL</text><text x="312" y="20">AI / HUMAN</text>
+          <text x="440" y="20">AI TOOL</text><text x="952" y="20">HUMAN GUT</text>
+        </g>
+        <text x="568" y="108" fill="#7a716c" font-size="11.5" font-style="italic">↑ every hand-off is manual · every learning stays in one person's head or one tool's archive</text>
+      </g>
+    </svg>
+    <div class="cols c3">
+      <div class="card"><h3>Velocity is bounded by hours</h3><p>Manual hand-offs cap testing volume — the raw material of learning.</p></div>
+      <div class="card"><h3>Learnings evaporate</h3><p>Why an ad won lives in one buyer's head. New briefs start from taste.</p></div>
+      <div class="card"><h3>Message match dies at the click</h3><p>Your Caroline LP = the generic page except H1 + hero. Her promise is gone one scroll in.</p></div>
+    </div>
+  </div>
+  <div class="footer"><span><b>Creative Loop</b> · The problem</span><span class="num">2</span></div>
+</section>
+
+<!-- ============ 3 · THESIS ============ -->
+<section class="slide" style="background:var(--ink)">
+  <div class="kicker" style="color:var(--pink)">The thesis</div>
+  <div class="grow" style="display:flex;flex-direction:column;justify-content:center;gap:34px">
+    <h2 style="color:#fff;font-size:52px;max-width:20ch">The compounding asset isn't the ad. It's the learning.</h2>
+    <p style="color:#cfc7c3;font-size:19px;line-height:1.6;max-width:56ch">
+      Everyone can generate infinite creative. The brands that win
+      <b style="color:var(--pink)">learn fastest per dollar of spend</b>.
+      The engine's job: <b style="color:#fff">make every dollar teach the system what to make next.</b>
+    </p>
+    <div style="display:flex;gap:40px">
+      <div><div class="stat" style="color:var(--pink)">Spend</div><div class="statlab" style="color:#8d8580">becomes data</div></div>
+      <div style="color:#57539e;font-size:40px;align-self:center">→</div>
+      <div><div class="stat" style="color:var(--pink)">Data</div><div class="statlab" style="color:#8d8580">becomes learnings</div></div>
+      <div style="color:#57539e;font-size:40px;align-self:center">→</div>
+      <div><div class="stat" style="color:var(--pink)">Learnings</div><div class="statlab" style="color:#8d8580">become the next brief</div></div>
+    </div>
+  </div>
+  <div class="footer" style="border-color:#3a3331"><span style="color:#8d8580"><b style="color:#fff">Creative Loop</b> · Thesis</span><span class="num" style="color:#8d8580">3</span></div>
+</section>
+
+<!-- ============ 4 · ARCHITECTURE ============ -->
+<section class="slide">
+  <div class="kicker">Part 1 · System architecture</div>
+  <h2>Five layers, one loop</h2>
+  <div class="grow" style="display:flex;align-items:center">
+    <svg viewBox="0 0 1136 470" style="width:100%">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10z" fill="#c94f74"/></marker>
+        <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10z" fill="#57539e"/></marker>
+      </defs>
+      <g font-family="Poppins,sans-serif">
+        <!-- Intelligence backbone -->
+        <rect x="0" y="0" width="1136" height="74" rx="14" fill="#eae7ff"/>
+        <text x="24" y="28" font-size="13" font-weight="700" fill="#57539e">CREATIVE INTELLIGENCE — the Creative Genome</text>
+        <text x="24" y="48" font-size="12" fill="#41403e">Every asset (ad, LP, quiz) is auto-tagged at birth with a structured taxonomy: hook type · angle · persona · format · creator · claims · offer framing · LP archetype.</text>
+        <text x="24" y="65" font-size="12" fill="#41403e">Multimodal models watch every video; tagging is applied retroactively to the entire historical library.</text>
+
+        <!-- Four loop boxes -->
+        <g>
+          <rect x="0" y="118" width="256" height="176" rx="14" fill="#fbe3ec"/>
+          <text x="20" y="146" font-size="13" font-weight="700" fill="#c94f74">GENERATE</text>
+          <text x="20" y="170" font-size="12" fill="#41403e">Concepts &amp; briefs (learning-</text>
+          <text x="20" y="187" font-size="12" fill="#41403e">grounded) · scripts · AI video</text>
+          <text x="20" y="204" font-size="12" fill="#41403e">(Veo) &amp; creator briefs · edits/</text>
+          <text x="20" y="221" font-size="12" fill="#41403e">variations · hook-matched LPs</text>
+          <text x="20" y="245" font-size="11" fill="#7a716c" font-style="italic">Gemini · Veo · LP builder</text>
+          <text x="20" y="262" font-size="11" fill="#7a716c" font-style="italic">(Part 2 prototype)</text>
+        </g>
+        <g>
+          <rect x="294" y="118" width="256" height="176" rx="14" fill="#f6f3f0"/>
+          <text x="314" y="146" font-size="13" font-weight="700" fill="#120d0e">LAUNCH &amp; TEST</text>
+          <text x="314" y="170" font-size="12" fill="#41403e">Meta Marketing API · structured</text>
+          <text x="314" y="187" font-size="12" fill="#41403e">test cells (one variable each) ·</text>
+          <text x="314" y="204" font-size="12" fill="#41403e">spend gates &amp; promotion rules ·</text>
+          <text x="314" y="221" font-size="12" fill="#41403e">auto-pairing ad ↔ LP archetype</text>
+          <text x="314" y="245" font-size="11" fill="#7a716c" font-style="italic">70 / 20 / 10 exploit–iterate–</text>
+          <text x="314" y="262" font-size="11" fill="#7a716c" font-style="italic">explore budget split</text>
+        </g>
+        <g>
+          <rect x="588" y="118" width="256" height="176" rx="14" fill="#f6f3f0"/>
+          <text x="608" y="146" font-size="13" font-weight="700" fill="#120d0e">MEASURE</text>
+          <text x="608" y="170" font-size="12" fill="#41403e">Meta insights (CPM, thumbstop,</text>
+          <text x="608" y="187" font-size="12" fill="#41403e">CTR, CVR, CPA, ROAS) · GA4 site</text>
+          <text x="608" y="204" font-size="12" fill="#41403e">behaviour · LTV &amp; refund per</text>
+          <text x="608" y="221" font-size="12" fill="#41403e">cohort · A/B test archive</text>
+          <text x="608" y="245" font-size="11" fill="#7a716c" font-style="italic">joined on the Genome —</text>
+          <text x="608" y="262" font-size="11" fill="#7a716c" font-style="italic">one warehouse table per asset</text>
+        </g>
+        <g>
+          <rect x="880" y="118" width="256" height="176" rx="14" fill="#fbe3ec"/>
+          <text x="900" y="146" font-size="13" font-weight="700" fill="#c94f74">LEARN</text>
+          <text x="900" y="170" font-size="12" fill="#41403e">Attribute-level performance</text>
+          <text x="900" y="187" font-size="12" fill="#41403e">("creator-confession hooks:</text>
+          <text x="900" y="204" font-size="12" fill="#41403e">+35% ROAS") · fatigue detection ·</text>
+          <text x="900" y="221" font-size="12" fill="#41403e">LTV-adjusted winners · creative</text>
+          <text x="900" y="238" font-size="12" fill="#41403e">memory of every tested hypothesis</text>
+          <text x="900" y="262" font-size="11" fill="#7a716c" font-style="italic">weekly Creative Intelligence report</text>
+        </g>
+
+        <!-- flow arrows -->
+        <g stroke="#c94f74" stroke-width="2.5" fill="none">
+          <path d="M258 206h32" marker-end="url(#ar)"/>
+          <path d="M552 206h32" marker-end="url(#ar)"/>
+          <path d="M846 206h32" marker-end="url(#ar)"/>
+        </g>
+        <!-- loop back -->
+        <path d="M1008 296v66H128v-62" stroke="#57539e" stroke-width="3" fill="none" marker-end="url(#ag)"/>
+        <text x="568" y="352" font-size="13" font-weight="700" fill="#57539e" text-anchor="middle">learnings become the context of every new brief — the loop closes</text>
+
+        <!-- governance -->
+        <rect x="0" y="396" width="1136" height="70" rx="14" fill="#fff" stroke="#e3dcd6"/>
+        <text x="24" y="424" font-size="13" font-weight="700" fill="#120d0e">GOVERNANCE — humans stay where humans win</text>
+        <text x="24" y="446" font-size="12" fill="#41403e">Compliance gate auto-checks claim hedging ("the look of") before anything ships · creative-director approval on new angles · media buyers own overrides. AI drafts; people direct.</text>
+      </g>
+    </svg>
+  </div>
+  <div class="footer"><span><b>Creative Loop</b> · Architecture</span><span class="num">4</span></div>
+</section>
+
+<!-- ============ 5 · GENOME ============ -->
+<section class="slide">
+  <div class="kicker">The load-bearing idea</div>
+  <h2>The Creative Genome: measure attributes, not ads</h2>
+  <p class="sub" style="margin-top:6px;max-width:78ch">One ad's ROAS is an anecdote. Spend measured across a shared taxonomy is evidence — starting with your <b>historical library</b>, before a single new ad is made.</p>
+  <div class="grow" style="display:flex;flex-direction:column;justify-content:center;gap:16px">
+    <table>
+      <tr><th style="width:16%">Gene</th><th style="width:44%">Example values (from your real creative)</th><th>Why it pays</th></tr>
+      <tr><td><b>Hook type</b></td><td>creator confession · problem callout ("GLP-1 loose skin") · result tease · question</td><td>Hooks drive thumbstop — the cheapest KPI to move</td></tr>
+      <tr><td><b>Angle</b></td><td>post-weight-loss skin · works-while-you-sleep · skeptic conversion</td><td>Angles fatigue as a group; detect it before ROAS shows it</td></tr>
+      <tr><td><b>Format · Creator</b></td><td>UGC talking head · explainer · montage · Caroline B. · AI-generated</td><td>Creator × angle fit is your scaling constraint</td></tr>
+      <tr><td><b>Offer framing</b></td><td>TBYB "$0" · "$5 trial" · "or don't pay"</td><td>Framing moves CVR <i>and</i> refund rate — must be tracked to LTV</td></tr>
+      <tr><td><b>LP archetype</b></td><td>advertorial · compact offer-first · creator listicle · quiz</td><td>Ad→LP pairing is a free CVR lever nobody measures</td></tr>
+    </table>
+    <div class="cols c2">
+      <div class="card lav"><h3>Retroactive tagging = instant history</h3><p>Models watch every historical ad once; tags join spend you already paid for.</p></div>
+      <div class="card pink"><h3>Attribution stays honest</h3><p>Learnings are priors. The system proposes; the test confirms.</p></div>
+    </div>
+  </div>
+  <div class="footer"><span><b>Creative Loop</b> · Creative Genome</span><span class="num">5</span></div>
+</section>
+
+<!-- ============ 6 · DATA ============ -->
+<section class="slide">
+  <div class="kicker">Key data inputs &amp; outputs</div>
+  <h2>What flows in, what flows out</h2>
+  <div class="grow" style="display:flex;align-items:center">
+    <div class="cols c2" style="width:100%">
+      <div>
+        <div class="tag">Inputs</div>
+        <table>
+          <tr><th>Source</th><th>Feeds</th></tr>
+          <tr><td><b>Historical creatives + spend</b></td><td>The engine's starting memory</td></tr>
+          <tr><td><b>Meta insights</b> (CPM, thumbstop, CTR, CVR, CPA, AOV, ROAS)</td><td>Attribute learnings; scale/retire rules</td></tr>
+          <tr><td><b>GA4 site behaviour</b></td><td>Section engagement → page iteration</td></tr>
+          <tr><td><b>LTV + 1st-party data</b></td><td>LTV-adjusted targets; refund guardrails</td></tr>
+          <tr><td><b>A/B test archive</b></td><td>Seeded creative memory</td></tr>
+          <tr><td><b>Ads Library + competitor sites</b></td><td>Angle-gap map</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="tag k">Outputs</div>
+        <table>
+          <tr><th>Artifact</th><th>Consumed by</th></tr>
+          <tr><td><b>Learning-grounded briefs &amp; scripts</b></td><td>Creative team &amp; creators</td></tr>
+          <tr><td><b>AI video teasers</b> (Veo)</td><td>Cheap kill-fast hook pretests</td></tr>
+          <tr><td><b>Hook-matched landing pages</b></td><td>Web/CRO — Part 2 does this today</td></tr>
+          <tr><td><b>Weekly Creative Intelligence report</b></td><td>Growth team + leadership</td></tr>
+          <tr><td><b>Launch/retire recommendations</b></td><td>Media buyers (with override)</td></tr>
+          <tr><td><b>Creative memory</b> (hypothesis + result)</td><td>The next cycle — the loop itself</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span><b>Creative Loop</b> · Data</span><span class="num">6</span></div>
+</section>
+
+<!-- ============ 7 · FEEDBACK MECHANICS ============ -->
+<section class="slide">
+  <div class="kicker">How performance shapes the next creative</div>
+  <h2>Four concrete feedback mechanisms</h2>
+  <div class="grow" style="display:flex;align-items:center">
+    <div class="cols c2" style="width:100%">
+      <div class="card"><div class="tag k">1 · Learnings in the prompt</div>
+        <p>The brief generator is prompted with the live learning table — <i>"creator-confession hooks +35% ROAS."</i> Every concept must cite a learning, or declare itself an exploration.</p></div>
+      <div class="card"><div class="tag k">2 · Explore / exploit budget</div>
+        <p>70% iterate winners · 20% new hooks on proven angles · 10% swings. Enforced by the concept queue itself.</p></div>
+      <div class="card"><div class="tag k">3 · Fatigue triggers refresh</div>
+        <p>CTR decay per <b>angle</b>, not per ad, auto-triggers refresh briefs — before decay reaches ROAS.</p></div>
+      <div class="card"><div class="tag k">4 · Optimize to LTV, not first purchase</div>
+        <p>Winners re-ranked on 90-day LTV:CAC and refund rate — a "$0" frame can win CVR while leaking into returns.</p></div>
+    </div>
+  </div>
+  <div class="footer"><span><b>Creative Loop</b> · Feedback mechanics</span><span class="num">7</span></div>
+</section>
+
+<!-- ============ 8 · ROADMAP ============ -->
+<section class="slide">
+  <div class="kicker">Implementation prioritization</div>
+  <h2>Learn from history first. Generate second. Automate last.</h2>
+  <p class="sub" style="margin-top:4px">Sequenced by risk: each phase pays for itself before the next adds autonomy.</p>
+  <div class="grow" style="display:flex;align-items:center">
+    <div class="cols c3" style="width:100%">
+      <div class="card lav">
+        <div class="tag p">Crawl</div>
+        <h3>Retroactive intelligence</h3>
+        <ul class="dash">
+          <li>Genome auto-tagger on the historical library</li>
+          <li>Join tags ↔ Meta · GA4 · LTV · A/B archive</li>
+          <li>First weekly intelligence report</li>
+        </ul>
+        <p style="margin-top:8px"><b>Zero workflow change.</b> Insight from money already spent.</p>
+      </div>
+      <div class="card pink">
+        <div class="tag k">Walk</div>
+        <h3>Learning-grounded generation</h3>
+        <ul class="dash">
+          <li>Brief &amp; script generator, learnings in context</li>
+          <li>Ad→LP builder in production (Part 2)</li>
+          <li>Human approval gates on everything</li>
+        </ul>
+        <p style="margin-top:8px"><b>Velocity ×3–5</b> at constant headcount.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Run</div>
+        <h3>Closed-loop automation</h3>
+        <ul class="dash">
+          <li>Veo teaser pretests for hook validation</li>
+          <li>Launch/test/retire rules via Meta API</li>
+          <li>Bandit-style explore/exploit allocation</li>
+          <li>LTV-objective optimization · LP personalization</li>
+        </ul>
+        <p style="margin-top:8px"><b>The loop runs nightly.</b></p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span><b>Creative Loop</b> · Roadmap</span><span class="num">8</span></div>
+</section>
+
+<!-- ============ 9 · FIRST FIVE BUILDS ============ -->
+<section class="slide">
+  <div class="kicker">The first five builds</div>
+  <h2>Ordered by evidence-per-dollar, not by glamour</h2>
+  <div class="grow" style="display:flex;align-items:center">
+    <table style="font-size:13.5px">
+      <tr><th style="width:4%">#</th><th style="width:26%">Build</th><th style="width:44%">Why this, why now</th><th>Payoff</th></tr>
+      <tr><td class="num"><b>1</b></td><td><b>Creative Genome + retro-tagger</b></td><td>Turns your ad history + A/B archive into structured evidence. Everything else consumes this.</td><td>The engine's memory</td></tr>
+      <tr><td class="num"><b>2</b></td><td><b>Learning engine + weekly report</b></td><td>Makes the intelligence visible and challengeable from day one.</td><td>Trust + direction</td></tr>
+      <tr><td class="num"><b>3</b></td><td><b>Brief &amp; script generator</b></td><td>Concepts grounded in learnings, in MAËLYS voice, hedged by construction. Creators create; the engine aims.</td><td>Creative velocity</td></tr>
+      <tr><td class="num"><b>4</b></td><td><b>Ad→LP builder</b> <span class="tag k" style="margin:0 0 0 6px">prototype built</span></td><td>Message match is the biggest post-click CVR lever — this is Part 2, working today.</td><td>CVR on every ad</td></tr>
+      <tr><td class="num"><b>5</b></td><td><b>Iteration &amp; pretest engine</b></td><td>Winner variations + Veo teasers kill weak hooks for dollars, not production budgets.</td><td>Cheaper, faster testing</td></tr>
+    </table>
+  </div>
+  <div class="footer"><span><b>Creative Loop</b> · First builds</span><span class="num">9</span></div>
+</section>
+
+<!-- ============ 10 · KPIs ============ -->
+<section class="slide">
+  <div class="kicker">KPIs — and how each is actually measured</div>
+  <h2>Measure the engine, the business, and the failure modes</h2>
+  <div class="grow" style="display:flex;align-items:center">
+    <div class="cols c3" style="width:100%">
+      <div class="card lav">
+        <div class="tag p">Engine health</div>
+        <ul class="dash">
+          <li><b>Creative hit rate</b> — % beating portfolio-median ROAS at the test gate</li>
+          <li><b>Concept→live time</b> — queue to first impression, in days</li>
+          <li><b>Learning velocity</b> — validated learnings per month</li>
+          <li><b>Cost per winning creative</b> — test spend ÷ winners</li>
+        </ul>
+      </div>
+      <div class="card pink">
+        <div class="tag k">Business</div>
+        <ul class="dash">
+          <li><b>Blended CAC &amp; ROAS</b> — Meta cross-checked vs GA4 + first-party</li>
+          <li><b>90-day LTV:CAC by creative cohort</b> — the scaling decision</li>
+          <li><b>New-creative share of spend</b> — aging-winner risk</li>
+          <li><b>ATC &amp; LP CVR per archetype</b> — GA4, per generated page</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="tag">Guardrails</div>
+        <ul class="dash">
+          <li><b>Refund rate per offer framing</b> — "$0" must not buy CVR with returns</li>
+          <li><b>Fatigue index</b> — CTR decay slope per angle</li>
+          <li><b>Compliance flag rate</b> — 0 unhedged claims shipped</li>
+          <li><b>Brand consistency</b> — weekly sampled human QA</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span><b>Creative Loop</b> · KPIs</span><span class="num">10</span></div>
+</section>
+
+<!-- ============ 11 · PART 2 BRIDGE ============ -->
+<section class="slide" style="background:var(--ink)">
+  <div class="kicker" style="color:var(--pink)">Part 2 · Working prototype</div>
+  <h2 style="color:#fff">I built the loop — it runs today, and it shows its sources</h2>
+  <p style="color:#cfc7c3;font-size:15px;max-width:70ch;line-height:1.6;margin-top:6px">
+    Three stages, all live: ad in → analysis → landing page → a new AI-generated ad.
+    Every listed data source consumed — and labeled where it's used.
+  </p>
+  <div class="grow" style="display:flex;align-items:center">
+    <div class="cols c2" style="width:100%;gap:14px">
+      <div class="card" style="background:#241e1d"><h3 style="color:var(--pink)">1 · Ad Intelligence</h3><p style="color:#cfc7c3">Gemini watches the full video and returns its creative DNA — hook, angle, persona, claims, <b style="color:#fff">compliance flags</b>, recommended archetype.</p></div>
+      <div class="card" style="background:#241e1d"><h3 style="color:var(--pink)">2 · Hook-matched landing page</h3><p style="color:#cfc7c3">Your real archetypes, voice, offer and <b style="color:#fff">live CDN imagery</b> (likeness-gated) + optional free-text direction. Every section carries a <b style="color:#fff">provenance chip</b>.</p></div>
+      <div class="card" style="background:#241e1d"><h3 style="color:var(--pink)">Data as fuel, not scoreboard</h3><p style="color:#cfc7c3">Fixed internal dataset + <b style="color:#fff">4 competitor funnels scraped live</b> — cited sources with clickable links. The new page's own results are unknown until it runs.</p></div>
+      <div class="card" style="background:#241e1d"><h3 style="color:var(--pink)">3 · The loop closes — with Veo</h3><p style="color:#cfc7c3">Learnings + competitor gaps → three concepts (safe / new-hook / swing) → one click renders a real 8-second Veo ad.</p></div>
+    </div>
+  </div>
+  <div class="footer" style="border-color:#3a3331"><span style="color:#8d8580"><b style="color:#fff">Creative Loop</b> · Prototype — live demo</span><span class="num" style="color:#8d8580">11</span></div>
+</section>
+
+<!-- ============ 12 · PART 2 ARCHITECTURE ============ -->
+<section class="slide">
+  <div class="kicker">Part 2 · Prototype architecture</div>
+  <h2>Grounded generation, not blind generation</h2>
+  <div class="grow" style="display:flex;align-items:center">
+    <svg viewBox="0 0 1136 420" style="width:100%">
+      <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" fill="#120d0e"/></marker></defs>
+      <g font-family="Poppins,sans-serif" font-size="12">
+        <!-- row 1 -->
+        <rect x="0" y="20" width="200" height="96" rx="12" fill="#f6f3f0"/>
+        <text x="16" y="48" font-weight="700" font-size="12.5">VIDEO AD IN</text>
+        <text x="16" y="70" fill="#41403e">upload / demo library</text>
+        <text x="16" y="88" fill="#7a716c" font-size="11">MP4 → Gemini Files API</text>
+
+        <rect x="248" y="20" width="240" height="96" rx="12" fill="#fbe3ec"/>
+        <text x="264" y="48" font-weight="700" font-size="12.5" fill="#c94f74">GEMINI VIDEO ANALYSIS</text>
+        <text x="264" y="70" fill="#41403e">native multimodal: audio, text</text>
+        <text x="264" y="86" fill="#41403e">overlays, pacing → Creative DNA</text>
+        <text x="264" y="104" fill="#7a716c" font-size="11">structured JSON, typed schema</text>
+
+        <rect x="536" y="20" width="280" height="96" rx="12" fill="#fbe3ec"/>
+        <text x="552" y="44" font-weight="700" font-size="12.5" fill="#c94f74">LP GENERATOR</text>
+        <text x="552" y="64" fill="#41403e">archetype select → slot filling in</text>
+        <text x="552" y="80" fill="#41403e">MAËLYS voice, hedged claims, real offer</text>
+        <text x="552" y="96" fill="#41403e">+ optional operator free-text direction</text>
+        <text x="552" y="112" fill="#7a716c" font-size="11">temperature high on copy, zero on facts</text>
+
+        <rect x="864" y="20" width="272" height="96" rx="12" fill="#f6f3f0"/>
+        <text x="880" y="44" font-weight="700" font-size="12.5">RENDERED PAGE + RECS</text>
+        <text x="880" y="64" fill="#41403e">React renderer · real CDN imagery</text>
+        <text x="880" y="80" fill="#41403e">(likeness-gated) · provenance chips</text>
+        <text x="880" y="96" fill="#41403e">per section · cited CRO test recs</text>
+        <text x="880" y="112" fill="#7a716c" font-size="11">→ prod: static export behind the CDN</text>
+
+        <g stroke="#120d0e" stroke-width="2" fill="none">
+          <path d="M202 68h40" marker-end="url(#a2)"/><path d="M490 68h40" marker-end="url(#a2)"/><path d="M818 68h40" marker-end="url(#a2)"/>
+        </g>
+
+        <!-- grounding layer -->
+        <rect x="248" y="164" width="800" height="84" rx="12" fill="#eae7ff"/>
+        <text x="264" y="192" font-weight="700" font-size="12.5" fill="#57539e">GROUNDING CORPUS (built today from live funnels) — every use provenance-labeled in the UI</text>
+        <text x="264" y="214" fill="#41403e">5 live GET-DREAMY LPs → archetype schemas · voice + compliance rules · TBYB offer facts · brand tokens + CDN assets</text>
+        <text x="264" y="232" fill="#41403e">4 scraped competitor funnels (insight ids) · unified internal dataset: Meta + GA4 + LTV + A/B module learnings</text>
+        <g stroke="#57539e" stroke-width="2" fill="none" stroke-dasharray="5 4">
+          <path d="M420 162V120"/><path d="M660 162V120"/>
+        </g>
+
+        <!-- loop row -->
+        <rect x="0" y="300" width="360" height="96" rx="12" fill="#f6f3f0"/>
+        <text x="16" y="326" font-weight="700" font-size="12.5">UNIFIED INTERNAL DATASET (fixed, checked-in)</text>
+        <text x="16" y="346" fill="#41403e">Meta + GA4 + LTV + A/B archive per Genome tag →</text>
+        <text x="16" y="362" fill="#41403e">attribute learnings — a data source, not a</text>
+        <text x="16" y="378" fill="#41403e">scoreboard: the new page's results are unknown</text>
+
+        <rect x="408" y="300" width="360" height="96" rx="12" fill="#fbe3ec"/>
+        <text x="424" y="328" font-weight="700" font-size="12.5" fill="#c94f74">CONCEPT GENERATOR</text>
+        <text x="424" y="350" fill="#41403e">3 briefs (safe / new-hook / swing), each citing</text>
+        <text x="424" y="366" fill="#41403e">the learning or competitor [id] it exploits</text>
+
+        <rect x="816" y="300" width="320" height="96" rx="12" fill="#57539e"/>
+        <text x="832" y="328" font-weight="700" font-size="12.5" fill="#fff">VEO TEXT-TO-VIDEO</text>
+        <text x="832" y="350" fill="#e5e2f7">8s vertical teaser per concept —</text>
+        <text x="832" y="366" fill="#e5e2f7">a real new ad, generated in the demo</text>
+
+        <g stroke="#120d0e" stroke-width="2" fill="none">
+          <path d="M362 348h40" marker-end="url(#a2)"/><path d="M770 348h40" marker-end="url(#a2)"/>
+        </g>
+        <text x="180" y="286" fill="#7a716c" font-size="11" font-style="italic">↓ stage 3 — the loop closes</text>
+      </g>
+    </svg>
+  </div>
+  <div class="footer"><span><b>Creative Loop</b> · Prototype architecture — Next.js · TypeScript · @google/genai (Gemini + Veo)</span><span class="num">12</span></div>
+</section>
+
+<!-- ============ 13 · CRO RECS ============ -->
+<section class="slide">
+  <div class="kicker">From the teardown of your live funnel (20 Aug 2026) — recommendations for a better ATC / CVR</div>
+  <h2>The test queue I'd run first</h2>
+  <div class="grow" style="display:flex;align-items:flex-start;padding-top:10px">
+    <table style="font-size:12px" class="tight">
+      <tr><th style="width:5%">Pri</th><th style="width:34%">Test</th><th style="width:40%">Hypothesis</th><th>Metric</th></tr>
+      <tr><td><b>1</b></td><td><b>Deep hook-match on creator pages</b> — full creator variant, auto-generated (the Part 2 builder does this)</td><td>Creator voice past the hero lifts ATC for creator traffic</td><td>ATC / CVR</td></tr>
+      <tr><td><b>2</b></td><td><b>Performance pass</b> — async VWO, lazy-load below fold, poster-frame videos</td><td>Faster LCP recovers the paid clicks currently lost pre-first-paint</td><td>LP CVR, CPC efficiency</td></tr>
+      <tr><td><b>3</b></td><td><b>One price frame</b> — "$5 shipping · 3 full weeks" everywhere; pre-select an offer option</td><td>Coherence beats the "$0" trick: same CVR, less refund drag</td><td>CVR + refund rate</td></tr>
+      <tr><td><b>4</b></td><td><b>Sticky ATC on the long advertorials</b> (module exists on the listicle)</td><td>19-section pages convert mid-scroll readers they currently strand</td><td>ATC</td></tr>
+      <tr><td><b>5</b></td><td><b>Quiz keeps its promises</b> — echo the user's answers in the result + restate the $35 gift</td><td>Perceived personalization converts the yes-ladder's commitment</td><td>quiz→LP CTR, CVR</td></tr>
+      <tr><td><b>6</b></td><td><b>Consistency sweep</b> — one jars-sold number, one clinical footnote, real scarcity or none</td><td>Cross-LP shoppers stop catching contradictions that undercut the clinical positioning</td><td>trust · brand QA</td></tr>
+      <tr><td><b>7</b></td><td><b>Post-trial "empty-jar" guarantee</b> — 60-day money-back after the TBYB charge (The Body Firm's signature; no MAËLYS LP has it)</td><td>Extending risk reversal past the trial charge closes the objection TBYB leaves open</td><td>CVR + refund rate</td></tr>
+    </table>
+  </div>
+  <div class="footer"><span><b>Creative Loop</b> · CRO test queue</span><span class="num">13</span></div>
+</section>
+
+<!-- ============ 14 · CLOSE ============ -->
+<section class="slide" style="background:var(--ink)">
+  <div class="kicker" style="color:var(--pink)">Close</div>
+  <div class="grow" style="display:flex;flex-direction:column;justify-content:center;gap:30px">
+    <h2 style="color:#fff;font-size:48px;max-width:22ch">The engine is learning from every dollar you've ever spent — and writing the next brief.</h2>
+    <div style="display:flex;gap:14px;flex-wrap:wrap">
+      <span class="pill" style="background:#241e1d;border-color:#3a3331;color:#e5ddd9">Crawl · Genome + retro-tagging + first intelligence report</span>
+      <span class="pill" style="background:#241e1d;border-color:#3a3331;color:#e5ddd9">Walk · learning-grounded briefs + LP builder in production</span>
+      <span class="pill" style="background:#241e1d;border-color:#3a3331;color:#e5ddd9">Run · Veo pretests + automated test cells</span>
+    </div>
+    <p class="quote" style="color:var(--pink);max-width:44ch">The product works while she sleeps. The engine should too.</p>
+  </div>
+  <div class="footer" style="border-color:#3a3331"><span style="color:#8d8580"><b style="color:#fff">Raz Vakil</b> · Creative Loop · August 2026</span><span style="color:#8d8580">Thank you</span></div>
+</section>
+
+</div>
+
+<div id="hint">← → navigate · P print/PDF</div>
+<div id="hud"><span id="cur" class="num">1</span> / <span id="tot" class="num"></span></div>
+
+<script>
+  const slides=[...document.querySelectorAll(".slide")];
+  let i=0;
+  document.getElementById("tot").textContent=slides.length;
+  function show(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,j)=>s.classList.toggle("active",j===i));
+    document.getElementById("cur").textContent=i+1;
+    location.hash=i+1;
+  }
+  function fit(){
+    const s=Math.min(innerWidth/1280,innerHeight/720)*0.97;
+    slides.forEach(el=>el.style.transform=`scale(${s})`);
+  }
+  addEventListener("keydown",e=>{
+    if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown")show(i+1);
+    else if(e.key==="ArrowLeft"||e.key==="PageUp")show(i-1);
+    else if(e.key==="Home")show(0);
+    else if(e.key==="End")show(slides.length-1);
+    else if(e.key.toLowerCase()==="p"){slides.forEach(s=>s.style.transform="");print();fit();}
+  });
+  addEventListener("resize",fit);
+  addEventListener("beforeprint",()=>slides.forEach(s=>s.style.transform=""));
+  addEventListener("afterprint",fit);
+  fit();
+  show(parseInt(location.hash.slice(1)||"1",10)-1);
+</script>
+</body>
+</html>

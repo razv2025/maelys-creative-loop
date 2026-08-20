@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { api, getAccessCode, setAccessCode, NeedCodeError } from "@/lib/clientApi";
 import AnalysisCard from "@/components/AnalysisCard";
 import LandingPagePreview from "@/components/LandingPagePreview";
 import NextIteration from "@/components/NextIteration";
@@ -73,10 +74,21 @@ export default function Home() {
   const [selectedDemo, setSelectedDemo] = useState<string | null>(null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [analyzeStage, setAnalyzeStage] = useState("");
   const [analysis, setAnalysis] = useState<CreativeAnalysis | null>(null);
   const [adName, setAdName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+
+  // Access gate (hosted demo only): APIs 401 until the shared code is entered.
+  const [needCode, setNeedCode] = useState(false);
+  const [codeInput, setCodeInput] = useState("");
+  useEffect(() => {
+    setCodeInput(getAccessCode());
+    const onNeed = () => setNeedCode(true);
+    window.addEventListener("cl-need-code", onNeed);
+    return () => window.removeEventListener("cl-need-code", onNeed);
+  }, []);
 
   // Stage 2
   const [archetype, setArchetype] = useState<Archetype | null>(null);
@@ -105,30 +117,50 @@ export default function Home() {
     setAnalyzing(true);
     setAnalysis(null);
     try {
-      let res: Response;
+      type FileInfo = { file: { name: string; uri: string; mimeType: string; state: string } };
+      let f: FileInfo["file"];
+      setAnalyzeStage("Uploading video to Gemini…");
       if (uploadFile) {
         const fd = new FormData();
         fd.append("file", uploadFile);
         setAdName(uploadFile.name);
-        res = await fetch("/api/analyze", { method: "POST", body: fd });
+        f = (await api<FileInfo>("/api/analyze", fd)).file;
       } else if (selectedDemo) {
         setAdName(DEMO_ADS.find((d) => d.file === selectedDemo)?.label ?? selectedDemo);
-        res = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ demo: selectedDemo }),
-        });
+        f = (await api<FileInfo>("/api/analyze", { phase: "upload", demo: selectedDemo })).file;
       } else return;
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "Analysis failed");
-      setAnalysis(json.analysis);
-      setArchetype(json.analysis.recommendedArchetype);
+
+      setAnalyzeStage("Gemini is processing the video…");
+      const deadline = Date.now() + 180_000;
+      while (f.state.includes("PROCESSING")) {
+        if (Date.now() > deadline) throw new Error("Video processing timed out");
+        await new Promise((r) => setTimeout(r, 3000));
+        f = (await api<FileInfo>("/api/analyze", { phase: "status", fileName: f.name })).file;
+      }
+      if (!f.state.includes("ACTIVE")) throw new Error(`Video processing failed (${f.state})`);
+
+      setAnalyzeStage("Watching the ad → extracting creative DNA…");
+      let result: { analysis: CreativeAnalysis } | null = null;
+      for (let attempt = 0; attempt < 2 && !result; attempt++) {
+        try {
+          result = await api<{ analysis: CreativeAnalysis }>("/api/analyze", {
+            phase: "generate",
+            fileUri: f.uri,
+            mimeType: f.mimeType,
+          });
+        } catch (e) {
+          if (e instanceof NeedCodeError || attempt === 1) throw e;
+        }
+      }
+      setAnalysis(result!.analysis);
+      setArchetype(result!.analysis.recommendedArchetype);
       setLp(null);
       setConcepts(null);
     } catch (e) {
-      setError((e as Error).message);
+      setError(e instanceof NeedCodeError ? "Enter the access code above, then retry." : (e as Error).message);
     } finally {
       setAnalyzing(false);
+      setAnalyzeStage("");
     }
   }
 
@@ -137,16 +169,14 @@ export default function Home() {
     setError(null);
     setGeneratingLp(true);
     try {
-      const res = await fetch("/api/generate-lp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ analysis, archetype, direction: direction.trim() || undefined }),
+      const json = await api<GenerateLpResponse>("/api/generate-lp", {
+        analysis,
+        archetype,
+        direction: direction.trim() || undefined,
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "Generation failed");
       setLp(json);
     } catch (e) {
-      setError((e as Error).message);
+      setError(e instanceof NeedCodeError ? "Enter the access code above, then retry." : (e as Error).message);
     } finally {
       setGeneratingLp(false);
     }
@@ -157,16 +187,10 @@ export default function Home() {
     setError(null);
     setGeneratingConcepts(true);
     try {
-      const res = await fetch("/api/next-concepts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ analysis, learnings }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "Generation failed");
+      const json = await api<{ concepts: NextConcept[] }>("/api/next-concepts", { analysis, learnings });
       setConcepts(json.concepts);
     } catch (e) {
-      setError((e as Error).message);
+      setError(e instanceof NeedCodeError ? "Enter the access code above, then retry." : (e as Error).message);
     } finally {
       setGeneratingConcepts(false);
     }
@@ -185,9 +209,19 @@ export default function Home() {
               MAËLYS AI acquisition engine — working prototype: ad in → landing page out → learnings → next creative.
             </p>
           </div>
-          <span className="rounded-full border border-[var(--chrome-border)] px-3 py-1 text-[11px] text-[var(--chrome-muted)]">
-            Head of AI home assignment · Raz Vakil
-          </span>
+          <div className="flex items-center gap-2">
+            <a
+              href="/deck.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-pink-400/40 bg-pink-400/10 px-3 py-1 text-[11px] font-semibold text-pink-300 hover:bg-pink-400/20"
+            >
+              📊 Part 1 deck
+            </a>
+            <span className="rounded-full border border-[var(--chrome-border)] px-3 py-1 text-[11px] text-[var(--chrome-muted)]">
+              Head of AI home assignment · Raz Vakil
+            </span>
+          </div>
         </div>
 
         {/* Stepper */}
@@ -221,6 +255,33 @@ export default function Home() {
           })}
         </nav>
       </header>
+
+      {needCode && (
+        <div className="mb-6 flex flex-wrap items-center gap-3 rounded-xl border border-sky-500/30 bg-sky-500/10 p-4">
+          <span className="text-sm text-sky-200">🔒 This demo runs on a paid AI key — enter the access code:</span>
+          <input
+            value={codeInput}
+            onChange={(e) => setCodeInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setAccessCode(codeInput.trim());
+                setNeedCode(false);
+              }
+            }}
+            placeholder="access code"
+            className="rounded-lg border border-sky-500/40 bg-black/30 px-3 py-1.5 text-sm focus:outline-none"
+          />
+          <button
+            onClick={() => {
+              setAccessCode(codeInput.trim());
+              setNeedCode(false);
+            }}
+            className="rounded-lg bg-sky-500/80 px-4 py-1.5 text-sm font-semibold text-black hover:brightness-110"
+          >
+            Unlock
+          </button>
+        </div>
+      )}
 
       {error && (
         <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">{error}</div>
@@ -295,9 +356,7 @@ export default function Home() {
               {analyzing ? "Watching the ad…" : "Analyze ad →"}
             </button>
             {analyzing && (
-              <span className="pulse-soft text-xs text-[var(--chrome-muted)]">
-                Uploading to Gemini → video understanding → structured creative DNA (~30–60s)
-              </span>
+              <span className="pulse-soft text-xs text-[var(--chrome-muted)]">{analyzeStage} (~30–60s total)</span>
             )}
           </div>
 

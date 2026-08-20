@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import type { NextConcept } from "@/lib/types";
 import { competitorRefsIn } from "@/lib/competitorLinks";
+import { api, base64ToVideoUrl, NeedCodeError } from "@/lib/clientApi";
 
 type VideoState =
   | { status: "idle" }
@@ -10,42 +11,48 @@ type VideoState =
   | { status: "done"; url: string }
   | { status: "error"; message: string };
 
+interface VeoResponse {
+  operation?: unknown;
+  done?: boolean;
+  videoBase64?: string;
+}
+
 export default function NextIteration({ concepts }: { concepts: NextConcept[] }) {
   const [videos, setVideos] = useState<Record<string, VideoState>>({});
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   async function generate(concept: NextConcept) {
     setVideos((v) => ({ ...v, [concept.id]: { status: "generating", startedAt: Date.now() } }));
+    const fail = (e: unknown) =>
+      setVideos((v) => ({
+        ...v,
+        [concept.id]: {
+          status: "error",
+          message:
+            e instanceof NeedCodeError
+              ? "Access code required — enter it in the banner above, then retry."
+              : (e as Error).message,
+        },
+      }));
     try {
-      const start = await fetch("/api/generate-video", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: concept.veoPrompt }),
-      });
-      const startJson = await start.json();
-      if (!start.ok) throw new Error(startJson.error ?? "Failed to start generation");
-      let operation = startJson.operation;
+      const start = await api<VeoResponse>("/api/generate-video", { prompt: concept.veoPrompt });
+      let operation = start.operation;
 
       const poll = async () => {
-        const res = await fetch("/api/generate-video", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ operation }),
-        });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error ?? "Generation failed");
-        if (json.done && json.url) {
-          setVideos((v) => ({ ...v, [concept.id]: { status: "done", url: json.url } }));
+        const json = await api<VeoResponse>("/api/generate-video", { operation });
+        if (json.done && json.videoBase64) {
+          setVideos((v) => ({
+            ...v,
+            [concept.id]: { status: "done", url: base64ToVideoUrl(json.videoBase64!) },
+          }));
           return;
         }
         operation = json.operation;
         timers.current[concept.id] = setTimeout(() => poll().catch(fail), 8000);
       };
-      const fail = (e: unknown) =>
-        setVideos((v) => ({ ...v, [concept.id]: { status: "error", message: (e as Error).message } }));
       poll().catch(fail);
     } catch (e) {
-      setVideos((v) => ({ ...v, [concept.id]: { status: "error", message: (e as Error).message } }));
+      fail(e);
     }
   }
 

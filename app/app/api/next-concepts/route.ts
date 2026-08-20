@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateJson } from "@/lib/gemini";
 import { nextConceptsPrompt } from "@/lib/prompts";
 import { competitorPromptBlock } from "@/lib/grounding";
+import { checkAccess } from "@/lib/auth";
 import type { NextConcept } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
+  const denied = checkAccess(req);
+  if (denied) return denied;
   try {
     const { analysis, learnings } = await req.json();
     if (!analysis || !learnings)

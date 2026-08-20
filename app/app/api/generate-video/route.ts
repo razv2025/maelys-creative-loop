@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-import fs from "fs/promises";
 import { ai, VEO_MODEL } from "@/lib/gemini";
+import { checkAccess } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
 // POST { prompt } -> starts a Veo generation, returns the operation (JSON).
-// POST { operation } -> polls; when done, downloads the video into
-// public/generated/ and returns { url }.
+// POST { operation } -> polls; when done, returns the video as base64 (no
+// filesystem writes — serverless hosts have a read-only public/).
 export async function POST(req: NextRequest) {
+  const denied = checkAccess(req);
+  if (denied) return denied;
   try {
     const body = await req.json();
     const g = ai();
@@ -74,11 +75,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: `Video download failed (${dl.status})` }, { status: 500 });
       }
       const buf = Buffer.from(await dl.arrayBuffer());
-      const dir = path.join(process.cwd(), "public", "generated");
-      await fs.mkdir(dir, { recursive: true });
-      const fileName = `veo-${Date.now()}.mp4`;
-      await fs.writeFile(path.join(dir, fileName), buf);
-      return NextResponse.json({ done: true, url: `/generated/${fileName}` });
+      return NextResponse.json({ done: true, videoBase64: buf.toString("base64") });
     }
 
     return NextResponse.json({ error: "prompt or operation required" }, { status: 400 });
