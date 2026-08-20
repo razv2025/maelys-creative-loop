@@ -2,6 +2,10 @@
 
 **Head of AI home assignment, Part 2 — Raz Vakil**
 
+**Live demo:** https://main.d1ogm4mrqh7c8u.amplifyapp.com (generation requires an
+access code) · **Part 1 deck:** [/deck.html](https://main.d1ogm4mrqh7c8u.amplifyapp.com/deck.html)
+· Hosted on AWS Amplify, auto-deploys from `main`.
+
 A working prototype of the closed creative loop: a Meta video ad goes in, a
 hook-matched MAËLYS landing page comes out, performance learnings are computed
 per creative attribute, and those learnings generate the next ad — including a
