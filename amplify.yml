@@ -8,6 +8,10 @@ applications:
             - npm ci
         build:
           commands:
+            # Amplify env vars exist only at build time — bake the ones the
+            # SSR runtime needs into Next's production env file.
+            - echo "GOOGLE_API_KEY=$GOOGLE_API_KEY" >> .env.production
+            - echo "ACCESS_CODE=$ACCESS_CODE" >> .env.production
             - npm run build
       artifacts:
         baseDirectory: .next
