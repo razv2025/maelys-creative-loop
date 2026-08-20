@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import type { NextConcept } from "@/lib/types";
+import { competitorRefsIn } from "@/lib/competitorLinks";
 
 type VideoState =
   | { status: "idle" }
@@ -80,7 +81,21 @@ export default function NextIteration({ concepts }: { concepts: NextConcept[] })
               </ol>
             </div>
 
-            <div className="mt-2 text-[10px] text-emerald-300/80">↳ exploits: {c.basedOnLearning}</div>
+            <div className="mt-2 text-[10px] text-emerald-300/80">
+              ↳ exploits: {c.basedOnLearning}
+              {competitorRefsIn(`${c.basedOnLearning} ${c.hypothesis}`).map((l) => (
+                <a
+                  key={l.url}
+                  href={l.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-1.5 inline-block rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[9px] font-semibold text-amber-300 hover:bg-amber-500/25"
+                  title={`${l.brand} — opens the scraped competitor page`}
+                >
+                  ↗ {l.host}
+                </a>
+              ))}
+            </div>
 
             <details className="mt-3">
               <summary className="cursor-pointer text-[11px] font-semibold text-[var(--chrome-muted)]">

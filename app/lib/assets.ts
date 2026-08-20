@@ -12,6 +12,15 @@ export const MAELYS_ASSETS = {
   heroCaroline: `${CDN}/ec689a0a-74d4-4845-8b31-38bb7ade31c6/caroline-banner-desktop-v2-x1and5.png`,
   jar: `${CDN}/045cb96c-d076-43cf-bda6-7ab0440cb2a9/get-dreamy.png`, // clean product shot
   beforeAfter56: `${CDN}/7dbe413e-9d1f-4a3d-a5a0-6b92d81b570b/slider-3.jpg`, // real Day 1 → Day 56
+  beforeAfterBelly: `${CDN}/18958851-253a-4bfc-b221-c8c59b8b7413/get-dreamy-caroline-loose-skin-slide-1.png`, // real Day 1/56, anonymous body
+  howToSteps: [
+    `${CDN}/6d52a479-1020-4d0b-a407-fa2d3dbba8f1/tab-1-step-1.png`, // apply the whip
+    `${CDN}/b1f59021-3823-4a5e-953c-fb06f075fc26/tab-1-step-2-.png`, // massage in
+    `${CDN}/1c33638d-45a3-4992-bc9f-0e3d44552f95/tab-1-step-3.png`, // overnight
+  ],
+  // Caroline Baudino's likeness — use ONLY when the analyzed ad actually
+  // features Caroline (creator-likeness rights are per-campaign).
+  carolinePortrait: `${CDN}/02dbb054-4623-4a0e-9a37-f8d38b8c27f4/reasons-3-var-2-desktop.png`,
   texture: `${CDN}/c3d83cb9-139a-4b29-a4e7-34b954ac9f89/slider-5.jpg`, // whipped texture, "Clinically proven to"
   statsCard: `${CDN}/1c1337e4-5984-462e-9e67-5661018a5286/slider-7.jpg`, // 90/83/80 card with jar in hand
   ultaBadge: `${CDN}/b1164112-dab1-4bff-8bb2-010ae3059f98/get-dreamy-ulta.png`,

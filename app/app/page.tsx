@@ -5,6 +5,7 @@ import AnalysisCard from "@/components/AnalysisCard";
 import LandingPagePreview from "@/components/LandingPagePreview";
 import NextIteration from "@/components/NextIteration";
 import { computeLearnings, fleetPerformance, DATASET_META, MODULE_LEARNINGS } from "@/lib/mockPerformance";
+import { competitorRefsIn } from "@/lib/competitorLinks";
 import type { Archetype, CreativeAnalysis, GenerateLpResponse, NextConcept, SourceType } from "@/lib/types";
 
 const SOURCE_CHIP: Record<SourceType, { bg: string; label: string }> = {
@@ -22,6 +23,28 @@ function SourceChip({ type, detail }: { type?: SourceType; detail?: string }) {
     <span className={`inline-block rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide ${s.bg}`}>
       {s.label}
       {detail ? ` · ${detail}` : ""}
+    </span>
+  );
+}
+
+/** External links to the competitor pages referenced (by insight id) in a text. */
+function CompetitorLinks({ text }: { text?: string }) {
+  const links = competitorRefsIn(text);
+  if (!links.length) return null;
+  return (
+    <span className="inline-flex flex-wrap gap-1.5">
+      {links.map((l) => (
+        <a
+          key={l.url}
+          href={l.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[9px] font-semibold text-amber-300 hover:bg-amber-500/25"
+          title={`${l.brand} — opens the scraped competitor page`}
+        >
+          ↗ {l.host}
+        </a>
+      ))}
     </span>
   );
 }
@@ -418,7 +441,8 @@ export default function Home() {
                     <ul className="mt-2 space-y-2">
                       {lp.sourcesUsed.map((s, i) => (
                         <li key={i} className="text-[11px] leading-relaxed">
-                          <SourceChip type={s.type} detail={s.source} />
+                          <SourceChip type={s.type} detail={s.source} />{" "}
+                          <CompetitorLinks text={s.type === "competitor" ? `${s.source} ${s.usedFor}` : undefined} />
                           <span className="ml-1.5 text-[var(--chrome-muted)]">{s.usedFor}</span>
                         </li>
                       ))}
@@ -455,8 +479,9 @@ export default function Home() {
                     </div>
                     <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--chrome-muted)]">{r.detail}</p>
                     {r.sourceType && (
-                      <div className="mt-2">
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
                         <SourceChip type={r.sourceType} detail={r.source} />
+                        <CompetitorLinks text={r.sourceType === "competitor" ? `${r.source} ${r.detail}` : undefined} />
                       </div>
                     )}
                   </div>

@@ -125,7 +125,11 @@ export default function LandingPagePreview({
   const [logoOk, setLogoOk] = useState(true);
   const [jarOk, setJarOk] = useState(true);
   const [baOk, setBaOk] = useState(true);
+  const [heroOk, setHeroOk] = useState(true);
   const sp = showProvenance;
+  // Likeness gating: Caroline's photos/banner only when the ad's creator IS Caroline.
+  const isCaroline = /caroline/i.test(c.creatorCard?.name ?? "") || /caroline/i.test(c.hero.h1);
+  const heroBanner = isCaroline ? MAELYS_ASSETS.heroCaroline : MAELYS_ASSETS.heroGeneric;
 
   return (
     <div
@@ -148,36 +152,98 @@ export default function LandingPagePreview({
         )}
       </div>
 
-      {/* Hero */}
-      <section className="relative px-6 pb-10 pt-8 text-center" style={{ background: "var(--m-pale-pink)" }}>
-        <Prov
-          show={sp}
-          tags={[
-            { type: "ad-analysis", note: "H1 mirrors ad hook" },
-            { type: "maelys-site", note: "product imagery + offer" },
-          ]}
-        />
-        {c.hero.eyebrow && (
-          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: "var(--m-purple)" }}>
-            {c.hero.eyebrow}
+      {/* Hero — real MAËLYS lifestyle banner (anonymous model; Caroline's only for Caroline ads) */}
+      {heroOk && !mobile ? (
+        <section
+          className="relative"
+          style={{
+            backgroundImage: `linear-gradient(90deg, rgba(253,248,246,0.96) 0%, rgba(253,248,246,0.85) 34%, rgba(253,248,246,0) 62%), url(${heroBanner})`,
+            backgroundSize: "cover",
+            backgroundPosition: "right center",
+          }}
+        >
+          {/* preload/error probe for the CSS background */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={heroBanner} alt="" className="hidden" onError={() => setHeroOk(false)} />
+          <Prov
+            show={sp}
+            tags={[
+              { type: "ad-analysis", note: "H1 mirrors ad hook" },
+              { type: "maelys-site", note: isCaroline ? "Caroline hero banner" : "brand lifestyle banner" },
+            ]}
+          />
+          <div className="max-w-[55%] px-10 py-14 text-left">
+            {c.hero.eyebrow && (
+              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: "var(--m-purple)" }}>
+                {c.hero.eyebrow}
+              </div>
+            )}
+            <h1 className="lp-serif text-3xl leading-snug md:text-4xl">{c.hero.h1}</h1>
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-black/70">{c.hero.subhead}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {c.hero.badges.map((b) => (
+                <span key={b} className="rounded-full bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wide shadow-sm">
+                  {b}
+                </span>
+              ))}
+            </div>
+            <div className="mt-6">
+              <Cta text={c.hero.ctaText} big />
+              <div className="mt-2 text-xs font-medium text-black/60">{c.hero.riskLine}</div>
+            </div>
           </div>
-        )}
-        <h1 className="lp-serif mx-auto max-w-xl text-3xl leading-snug md:text-4xl">{c.hero.h1}</h1>
-        <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-black/70">{c.hero.subhead}</p>
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-          {c.hero.badges.map((b) => (
-            <span key={b} className="rounded-full bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wide shadow-sm">
-              {b}
-            </span>
-          ))}
-        </div>
-        <div className={`mx-auto mt-6 grid max-w-2xl items-center gap-6 ${mobile ? "" : "grid-cols-2"}`}>
+        </section>
+      ) : (
+        <section className="relative pb-8 text-center" style={{ background: "var(--m-pale-pink)" }}>
+          <Prov
+            show={sp}
+            tags={[
+              { type: "ad-analysis", note: "H1 mirrors ad hook" },
+              { type: "maelys-site", note: "brand lifestyle banner" },
+            ]}
+          />
+          {heroOk && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={isCaroline ? MAELYS_ASSETS.heroCaroline : MAELYS_ASSETS.heroGenericMobile}
+              alt="MAËLYS GET-DREAMY nightly ritual"
+              className="w-full"
+              onError={() => setHeroOk(false)}
+            />
+          )}
+          <div className="px-6 pt-6">
+            {c.hero.eyebrow && (
+              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: "var(--m-purple)" }}>
+                {c.hero.eyebrow}
+              </div>
+            )}
+            <h1 className="lp-serif mx-auto max-w-xl text-3xl leading-snug">{c.hero.h1}</h1>
+            <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-black/70">{c.hero.subhead}</p>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              {c.hero.badges.map((b) => (
+                <span key={b} className="rounded-full bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wide shadow-sm">
+                  {b}
+                </span>
+              ))}
+            </div>
+            <div className="mt-6">
+              <Cta text={c.hero.ctaText} big />
+              <div className="mt-2 text-xs font-medium text-black/60">{c.hero.riskLine}</div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Product + benefits strip */}
+      <section className="relative px-6 py-8" style={{ background: "var(--m-pale-pink)" }}>
+        <Prov show={sp} tags={[{ type: "maelys-site", note: "product shot" }]} />
+        <div className={`mx-auto grid max-w-2xl items-center gap-6 ${mobile ? "" : "grid-cols-2"}`}>
           {jarOk ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={MAELYS_ASSETS.jar}
               alt="GET-DREAMY Overnight Toning Body Whip"
-              className="mx-auto w-full max-w-[280px]"
+              className="mx-auto w-full max-w-[260px]"
               onError={() => setJarOk(false)}
             />
           ) : (
@@ -190,10 +256,6 @@ export default function LandingPagePreview({
               </li>
             ))}
           </ul>
-        </div>
-        <div className="mt-7">
-          <Cta text={c.hero.ctaText} big />
-          <div className="mt-2 text-xs font-medium text-black/60">{c.hero.riskLine}</div>
         </div>
       </section>
 
@@ -212,9 +274,18 @@ export default function LandingPagePreview({
         <section className="relative px-6 py-8" style={{ background: "var(--m-lavender)" }}>
           <Prov show={sp} tags={[{ type: "ad-analysis", note: "creator from video" }]} />
           <div className="mx-auto flex max-w-md items-center gap-4 rounded-2xl bg-white p-4 shadow-sm">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-2xl" style={{ background: "var(--m-pink)" }}>
-              👩🏻‍🦰
-            </div>
+            {isCaroline ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={MAELYS_ASSETS.carolinePortrait}
+                alt={c.creatorCard.name}
+                className="h-16 w-16 shrink-0 rounded-full object-cover object-top"
+              />
+            ) : (
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-2xl" style={{ background: "var(--m-pink)" }}>
+                👩🏻‍🦰
+              </div>
+            )}
             <div className="text-left">
               <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--m-purple)" }}>
                 Trusted by
@@ -301,10 +372,10 @@ export default function LandingPagePreview({
           <div className={`mx-auto mt-6 grid max-w-3xl gap-4 ${mobile ? "" : "grid-cols-3"}`}>
             {c.beforeAfter.cards.map((card, i) => (
               <div key={i} className="rounded-2xl bg-white p-3 text-left shadow-sm">
-                {i === 0 && baOk ? (
+                {i <= 1 && baOk ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={MAELYS_ASSETS.beforeAfter56}
+                    src={i === 0 ? MAELYS_ASSETS.beforeAfter56 : MAELYS_ASSETS.beforeAfterBelly}
                     alt="Day 1 vs Day 56 clinical before/after"
                     className="w-full rounded-xl"
                     onError={() => setBaOk(false)}
@@ -463,12 +534,23 @@ export default function LandingPagePreview({
           <h2 className="lp-serif mx-auto max-w-md text-2xl">{c.howToUse.h2}</h2>
           <div className={`mx-auto mt-6 grid max-w-2xl gap-4 ${mobile ? "" : "grid-cols-3"}`}>
             {c.howToUse.steps.map((s, i) => (
-              <div key={i} className="rounded-2xl p-4 text-left" style={{ background: "var(--m-lavender)" }}>
-                <div className="lp-stat text-2xl" style={{ color: "var(--m-purple)" }}>
-                  {String(i + 1).padStart(2, "0")}
+              <div key={i} className="overflow-hidden rounded-2xl text-left" style={{ background: "var(--m-lavender)" }}>
+                {MAELYS_ASSETS.howToSteps[i] && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={MAELYS_ASSETS.howToSteps[i]}
+                    alt={s.title}
+                    className="h-28 w-full object-cover"
+                    onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
+                  />
+                )}
+                <div className="p-4">
+                  <div className="lp-stat text-2xl" style={{ color: "var(--m-purple)" }}>
+                    {String(i + 1).padStart(2, "0")}
+                  </div>
+                  <h3 className="mt-1 text-xs font-bold uppercase tracking-wide">{s.title}</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-black/70">{s.body}</p>
                 </div>
-                <h3 className="mt-1 text-xs font-bold uppercase tracking-wide">{s.title}</h3>
-                <p className="mt-1 text-xs leading-relaxed text-black/70">{s.body}</p>
               </div>
             ))}
           </div>

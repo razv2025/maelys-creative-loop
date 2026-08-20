@@ -1,0 +1,141 @@
+{
+  "fetchedAt": "2026-08-20",
+  "competitors": [
+    {
+      "id": "crepe-erase",
+      "brand": "Crépe Erase (rebranded The Body Firm)",
+      "product": "Age-Renewing Body & Face Kit / 2-Step Body Resurface & Repair Treatment",
+      "url": "https://thebodyfirm.com/",
+      "positioning": "Infomercial-heritage DR brand positioning itself as the #1 anti-aging body treatment system (per NIQ) for crepey skin in women 45+.",
+      "offer": "Kits at $49.95-$59.95 (25% off), free shipping, free gifts up to $178 value, 60-day empty-jar money-back guarantee.",
+      "insights": [
+        {
+          "id": "crepe-erase-1",
+          "tactic": "Empty-jar money-back guarantee",
+          "detail": "60-day guarantee worded 'simply return the bottles, even if empty' — post-purchase risk reversal the customer can use the whole product against. Closes the objection MAËLYS's TBYB leaves open after the 21-day trial charges.",
+          "maelysGap": true
+        },
+        {
+          "id": "crepe-erase-2",
+          "tactic": "System-attributed clinical stat",
+          "detail": "Headline stats (93%/90%/83%) are footnoted 'using the Body Resurfacing Serum and Body Repair Treatment as a system', so the proof itself sells the multi-product kit rather than a single SKU.",
+          "maelysGap": true
+        },
+        {
+          "id": "crepe-erase-3",
+          "tactic": "Third-party market-data category claim",
+          "detail": "'#1 Anti-Aging Body Treatment System' attributed to NIQ (Nielsen) data reads as measured market fact — one authority rung above MAËLYS's retailer-based 'Ulta #1 best-seller'.",
+          "maelysGap": true
+        },
+        {
+          "id": "crepe-erase-4",
+          "tactic": "Named MD endorsement front and center",
+          "detail": "Dr. Taz Bhatia MD quote ('the #1 brand I think of when my patients need help with their crepey skin') on the homepage. MAËLYS has an advisory board but only on one listicle LP, buried at section 12.",
+          "maelysGap": false
+        }
+      ]
+    },
+    {
+      "id": "truly-beauty",
+      "brand": "Truly Beauty",
+      "product": "The Firming Body Serum (peptide + bakuchiol, for sagging skin & stretch marks)",
+      "url": "https://www.trulybeauty.com/products/the-firming-body-serum",
+      "positioning": "Social-first vegan DTC brand selling a $29 firming serum on TikTok-driven demand with aggressive pack/subscription price laddering.",
+      "offer": "$29 one-time; Subscribe & Save 10%; 2-pack $26.10/ea and 3-pack $24.65/ea; Truly+ membership up to 20% off; promo-code countdown timer.",
+      "insights": [
+        {
+          "id": "truly-beauty-1",
+          "tactic": "Multi-pack per-unit price laddering",
+          "detail": "2-pack and 3-pack options with visibly falling per-unit price (and 'Most Popular' badge) raise AOV without requiring a subscription commitment. MAËLYS's only ladders are subscribe-20% and the duo upsell.",
+          "maelysGap": true
+        },
+        {
+          "id": "truly-beauty-2",
+          "tactic": "Consumption-expectation framing",
+          "detail": "'See results from the 2nd bottle' converts slow-visible-results (a weakness) into a reason to buy multiple units, while pre-managing refund-triggering impatience. MAËLYS says 'consistency is key' but never attaches a quantity or timeline offer to it.",
+          "maelysGap": true
+        },
+        {
+          "id": "truly-beauty-3",
+          "tactic": "Named paid-loyalty tier",
+          "detail": "'Save up to 20% with Truly+' creates a membership identity above the ordinary subscribe checkbox, deepening retention economics.",
+          "maelysGap": true
+        },
+        {
+          "id": "truly-beauty-4",
+          "tactic": "Proof-light PDP betting on off-page social proof",
+          "detail": "The server-rendered PDP carries no reviews, stats, or before/afters — proof lives in TikTok creator volume. A cautionary contrast: MAËLYS's on-page proof stack is a genuine advantage to keep.",
+          "maelysGap": false
+        }
+      ]
+    },
+    {
+      "id": "sol-de-janeiro",
+      "brand": "Sol de Janeiro",
+      "product": "Brazilian Bum Bum Cream",
+      "url": "https://soldejaneiro.com/products/brazilian-bum-bum-cream",
+      "positioning": "Category-king 'visibly firming' body cream sold on scent, joy, and compliments first, with firming efficacy as the rational alibi.",
+      "offer": "$48 (240ml) + smaller sizes and a refill SKU; Subscribe 10%; bundles $78-$85; free US shipping $35+; free returns; free sample every order; 2 free gifts at $65+ with countdown.",
+      "insights": [
+        {
+          "id": "sol-de-janeiro-1",
+          "tactic": "Pleasure/compliment-first angle",
+          "detail": "Scent notes presented like a perfume plus 'you'll get so many compliments' framing gives a shame-free, shareable purchase reason that sidesteps efficacy skepticism entirely. MAËLYS mentions 'Addictive Scent' in a ticker but never runs pleasure as an angle.",
+          "maelysGap": true
+        },
+        {
+          "id": "sol-de-janeiro-2",
+          "tactic": "On-page Q&A answered by the brand",
+          "detail": "10+ real customer questions with brand replies handle objections in the customer's own words and build SEO long-tail. MAËLYS handles objections only via a 4-item FAQ accordion.",
+          "maelysGap": true
+        },
+        {
+          "id": "sol-de-janeiro-3",
+          "tactic": "Intra-line comparison chart",
+          "detail": "A chart comparing their own 5 body-cream variants keeps the 'which one is right for me?' decision on-site. MAËLYS's Us-vs-Them table is competitor-facing only and shipped as a flat image.",
+          "maelysGap": true
+        },
+        {
+          "id": "sol-de-janeiro-4",
+          "tactic": "Massive verified review volume with AI summary",
+          "detail": "4.87/5 from 27,194 on-page reviews plus an AI-generated theme summary. MAËLYS cites '10,000+ 5-star reviews' but renders hand-picked blockquotes rather than a live review system on its LPs.",
+          "maelysGap": false
+        }
+      ]
+    },
+    {
+      "id": "strivectin",
+      "brand": "StriVectin",
+      "product": "Crepe Control Tightening Body Cream",
+      "url": "https://strivectin.com/products/crepe-control%E2%84%A2-tightening-body-cream",
+      "positioning": "Clinical science brand ('Trusted by you. Backed by science') selling a $59 tightening cream as half of a 2-step prep-and-correct crepey-skin system.",
+      "offer": "$59 (6.7oz, 10oz jumbo); subscription frequency selector; 25% off sitewide code; tiered free gifts at $125+/$200+; no trial or advertised guarantee.",
+      "insights": [
+        {
+          "id": "strivectin-1",
+          "tactic": "Unretouched before/after slider",
+          "detail": "Interactive B/A comparison labeled 'Unretouched photos. Individual results will vary.' — one word of copy that inoculates against the faked-photos objection. MAËLYS's B/A cards have names/ages but no authenticity attestation and no interactive reveal.",
+          "maelysGap": true
+        },
+        {
+          "id": "strivectin-2",
+          "tactic": "Bundle-engineered headline stat",
+          "detail": "The best number on the page ('94% showed improvement in appearance of crepey skin') is footnoted as achieved with the scrub+cream used together, making the system the only way to claim the result. MAËLYS's RE-LURE duo upsell modal carries no proof at all.",
+          "maelysGap": true
+        },
+        {
+          "id": "strivectin-3",
+          "tactic": "Tiered gift-with-purchase thresholds",
+          "detail": "Free gift at $125+ and a second at $200+ escalate cart value independently of subscription perks. MAËLYS's free gift is tied only to subscribing.",
+          "maelysGap": true
+        }
+      ]
+    }
+  ],
+  "angleGaps": [
+    "Post-trial 'empty-jar' money-back guarantee (60-day, 'return even if empty') layered on top of TBYB, extending risk reversal past the trial charge",
+    "System/duo-attributed clinical stat so the GET-DREAMY + RE-LURE upsell is sold with its own proof instead of a bare discount",
+    "Multi-jar consumption ladder (2-3 jar pack at falling unit price framed as the '90-day visible results plan' / 'results from the 2nd jar')",
+    "Pleasure-and-compliments secondary angle (scent-first, self-care-ritual framing) as an alternate ad/LP concept alongside the problem-pain loose-skin angle"
+  ]
+}
