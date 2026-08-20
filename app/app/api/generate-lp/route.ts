@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateJson } from "@/lib/gemini";
+import { streamJson } from "@/lib/gemini";
 import { lpPrompt } from "@/lib/prompts";
 import { competitorPromptBlock, moduleLearningsPromptBlock } from "@/lib/grounding";
 import { checkAccess } from "@/lib/auth";
-import type { GenerateLpResponse } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
+// Streams the model's JSON as text chunks: long generations would hit
+// serverless buffered-response timeouts (Amplify ≈30s); streaming sends
+// bytes immediately. The client assembles + repairs + parses.
 export async function POST(req: NextRequest) {
   const denied = checkAccess(req);
   if (denied) return denied;
@@ -15,7 +17,7 @@ export async function POST(req: NextRequest) {
     const { analysis, archetype, direction } = await req.json();
     if (!analysis || !archetype)
       return NextResponse.json({ error: "analysis and archetype required" }, { status: 400 });
-    const result = await generateJson<GenerateLpResponse>(
+    return streamJson(
       lpPrompt(
         analysis,
         archetype,
@@ -25,9 +27,6 @@ export async function POST(req: NextRequest) {
       ),
       0.8
     );
-    result.sourcesUsed ??= [];
-    result.structureDecisions ??= [];
-    return NextResponse.json(result);
   } catch (e) {
     console.error("generate-lp error", e);
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });

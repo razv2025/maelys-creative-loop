@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { api, getAccessCode, setAccessCode, NeedCodeError } from "@/lib/clientApi";
+import { api, apiStreamJson, getAccessCode, setAccessCode, NeedCodeError } from "@/lib/clientApi";
 import AnalysisCard from "@/components/AnalysisCard";
 import LandingPagePreview from "@/components/LandingPagePreview";
 import NextIteration from "@/components/NextIteration";
@@ -169,11 +169,13 @@ export default function Home() {
     setError(null);
     setGeneratingLp(true);
     try {
-      const json = await api<GenerateLpResponse>("/api/generate-lp", {
+      const json = await apiStreamJson<GenerateLpResponse>("/api/generate-lp", {
         analysis,
         archetype,
         direction: direction.trim() || undefined,
       });
+      json.sourcesUsed ??= [];
+      json.structureDecisions ??= [];
       setLp(json);
     } catch (e) {
       setError(e instanceof NeedCodeError ? "Enter the access code above, then retry." : (e as Error).message);
@@ -187,7 +189,7 @@ export default function Home() {
     setError(null);
     setGeneratingConcepts(true);
     try {
-      const json = await api<{ concepts: NextConcept[] }>("/api/next-concepts", { analysis, learnings });
+      const json = await apiStreamJson<{ concepts: NextConcept[] }>("/api/next-concepts", { analysis, learnings });
       setConcepts(json.concepts);
     } catch (e) {
       setError(e instanceof NeedCodeError ? "Enter the access code above, then retry." : (e as Error).message);

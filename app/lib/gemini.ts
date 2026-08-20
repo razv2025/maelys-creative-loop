@@ -1,4 +1,5 @@
 import { GoogleGenAI, createUserContent, createPartFromUri } from "@google/genai";
+import { parseJsonLoose } from "./json";
 
 export const ANALYSIS_MODEL = process.env.GEMINI_MODEL || "gemini-3.5-flash";
 export const COPY_MODEL = process.env.GEMINI_COPY_MODEL || ANALYSIS_MODEL;
@@ -85,64 +86,35 @@ export async function generateJson<T>(prompt: string, temperature = 0.7): Promis
   });
 }
 
-/** Defensive JSON parsing: strips code fences/junk, repairs common glitches. */
-export function parseJson<T>(text: string): T {
-  let t = text.trim();
-  if (t.startsWith("```")) {
-    t = t.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  }
-  const start = t.indexOf("{");
-  const end = t.lastIndexOf("}");
-  if (start > 0 || (end > -1 && end < t.length - 1)) {
-    t = t.slice(start, end + 1);
-  }
-  try {
-    return JSON.parse(t) as T;
-  } catch {
-    try {
-      return JSON.parse(repairJson(t)) as T;
-    } catch (e) {
-      throw new Error(
-        `Model returned unparseable JSON (${(e as Error).message}). First 200 chars: ${t.slice(0, 200)}`
-      );
-    }
-  }
-}
+export const parseJson = parseJsonLoose;
 
 /**
- * Repair the glitches Gemini occasionally emits even in JSON mode:
- * raw newlines/tabs inside string literals, unescaped inner quotes
- * (e.g. "text": "she said "wow" then left"), and trailing commas.
+ * Stream a JSON-mode generation as raw text chunks (Response body). Used by
+ * long generations so serverless hosts (Amplify ≈30s buffered limit) see
+ * bytes early; the client assembles and parses with parseJsonLoose.
  */
-function repairJson(t: string): string {
-  let out = "";
-  let inStr = false;
-  for (let i = 0; i < t.length; i++) {
-    const ch = t[i];
-    if (!inStr) {
-      if (ch === '"') inStr = true;
-      out += ch;
-      continue;
-    }
-    // inside a string literal
-    if (ch === "\\") {
-      out += ch + (t[i + 1] ?? "");
-      i++;
-    } else if (ch === "\n") out += "\\n";
-    else if (ch === "\r") out += "\\r";
-    else if (ch === "\t") out += "\\t";
-    else if (ch === '"') {
-      // Closing quote only if what follows (after whitespace) is valid
-      // post-string JSON syntax; otherwise it's an unescaped inner quote.
-      const rest = t.slice(i + 1).match(/^\s*([,}\]:])/);
-      if (rest) {
-        inStr = false;
-        out += ch;
-      } else {
-        out += '\\"';
+export function streamJson(prompt: string, temperature = 0.7): Response {
+  const g = ai();
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        const res = await g.models.generateContentStream({
+          model: COPY_MODEL,
+          contents: prompt,
+          config: { responseMimeType: "application/json", temperature },
+        });
+        for await (const chunk of res) {
+          if (chunk.text) controller.enqueue(encoder.encode(chunk.text));
+        }
+        controller.close();
+      } catch (e) {
+        controller.enqueue(encoder.encode(`\n__STREAM_ERROR__:${(e as Error).message}`));
+        controller.close();
       }
-    } else out += ch;
-  }
-  // trailing commas before } or ]
-  return out.replace(/,(\s*[}\]])/g, "$1");
+    },
+  });
+  return new Response(stream, {
+    headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
+  });
 }
