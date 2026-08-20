@@ -52,6 +52,7 @@
   th{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;
     padding:8px 12px;border-bottom:2px solid var(--ink)}
   td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.45}
+  table.tight td{padding:6px 10px;line-height:1.4}
   td b{font-weight:600}
   .quote{font-family:var(--serif);font-style:italic;font-size:21px;line-height:1.45;color:var(--ink)}
   ul.tick{list-style:none}
@@ -417,17 +418,18 @@
 <!-- ============ 11 · PART 2 BRIDGE ============ -->
 <section class="slide" style="background:var(--ink)">
   <div class="kicker" style="color:var(--pink)">Part 2 · Working prototype</div>
-  <h2 style="color:#fff">I built the front half of the loop — it runs today</h2>
+  <h2 style="color:#fff">I built the loop — it runs today, and it shows its sources</h2>
   <p style="color:#cfc7c3;font-size:15px;max-width:70ch;line-height:1.6;margin-top:6px">
-    A Next.js app: drop in any Meta video ad (real MAËLYS creative included) and watch the loop execute —
-    live Gemini video analysis, live page generation, and a real AI-generated next ad.
+    A Next.js app in three stages: drop in any Meta video ad (real MAËLYS creative included) → live Gemini
+    video analysis → generated landing page → a real AI-generated next ad. Every data source the assignment
+    lists is consumed — and labeled where it's used.
   </p>
   <div class="grow" style="display:flex;align-items:center">
     <div class="cols c2" style="width:100%;gap:14px">
       <div class="card" style="background:#241e1d"><h3 style="color:var(--pink)">1 · Ad Intelligence</h3><p style="color:#cfc7c3">Gemini watches the full video natively — audio, on-screen text, pacing — and returns the creative DNA: hook + type, angle, promise, persona, awareness stage, claims, <b style="color:#fff">compliance flags</b>, recommended LP archetype.</p></div>
-      <div class="card" style="background:#241e1d"><h3 style="color:var(--pink)">2 · Hook-matched landing page</h3><p style="color:#cfc7c3">Generates the page in MAËLYS's real archetypes, voice, offer mechanics, brand tokens and CDN imagery — extracted from a teardown of your five live LPs. Every section carries a <b style="color:#fff">provenance chip</b> — ad analysis · maelys.com · internal data · competitor — so you can see each data source doing its job.</p></div>
-      <div class="card" style="background:#241e1d"><h3 style="color:var(--pink)">3 · Internal data as fuel, not scoreboard</h3><p style="color:#cfc7c3">The new page's performance is unknown until it runs — so the unified dataset (Meta + GA4 + LTV + A/B archive, fixed &amp; checked-in) is consumed as a <b style="color:#fff">source</b>: attribute-level learnings per hook type, format, angle and LP archetype feed straight into generation.</p></div>
-      <div class="card" style="background:#241e1d"><h3 style="color:var(--pink)">4 · The loop closes — with Veo</h3><p style="color:#cfc7c3">Those learnings + competitor angle gaps prompt three next-iteration concepts (safe / new-hook / swing), each citing what it exploits — and one click generates a real 8-second AI video teaser with Google Veo.</p></div>
+      <div class="card" style="background:#241e1d"><h3 style="color:var(--pink)">2 · Hook-matched landing page</h3><p style="color:#cfc7c3">Real archetypes, voice, offer mechanics and <b style="color:#fff">live CDN imagery</b> from a teardown of your five LPs — with creator-likeness gating (Caroline's photos only on Caroline ads). The growth team can add free-text creative direction. Every section carries a <b style="color:#fff">provenance chip</b>: ad analysis · maelys.com · internal data · competitor · your direction.</p></div>
+      <div class="card" style="background:#241e1d"><h3 style="color:var(--pink)">Data as fuel, not scoreboard</h3><p style="color:#cfc7c3">The new page's performance is unknown until it runs — so the unified dataset (Meta + GA4 + LTV + A/B archive, fixed &amp; checked-in) and <b style="color:#fff">4 competitor funnels scraped live</b> (The Body Firm, Truly, Sol de Janeiro, StriVectin) are consumed as cited sources, with clickable links to each competitor page.</p></div>
+      <div class="card" style="background:#241e1d"><h3 style="color:var(--pink)">3 · The loop closes — with Veo</h3><p style="color:#cfc7c3">Attribute learnings + competitor angle gaps prompt three next-iteration concepts (safe / new-hook / swing), each citing what it exploits — and one click generates a real 8-second AI video teaser with Google Veo.</p></div>
     </div>
   </div>
   <div class="footer" style="border-color:#3a3331"><span style="color:#8d8580"><b style="color:#fff">Creative Loop</b> · Prototype — live demo</span><span class="num" style="color:#8d8580">11</span></div>
@@ -455,16 +457,18 @@
         <text x="264" y="104" fill="#7a716c" font-size="11">structured JSON, typed schema</text>
 
         <rect x="536" y="20" width="280" height="96" rx="12" fill="#fbe3ec"/>
-        <text x="552" y="48" font-weight="700" font-size="12.5" fill="#c94f74">LP GENERATOR</text>
-        <text x="552" y="70" fill="#41403e">archetype select → slot filling in</text>
-        <text x="552" y="86" fill="#41403e">MAËLYS voice, hedged claims, real offer</text>
-        <text x="552" y="104" fill="#7a716c" font-size="11">temperature high on copy, zero on facts</text>
+        <text x="552" y="44" font-weight="700" font-size="12.5" fill="#c94f74">LP GENERATOR</text>
+        <text x="552" y="64" fill="#41403e">archetype select → slot filling in</text>
+        <text x="552" y="80" fill="#41403e">MAËLYS voice, hedged claims, real offer</text>
+        <text x="552" y="96" fill="#41403e">+ optional operator free-text direction</text>
+        <text x="552" y="112" fill="#7a716c" font-size="11">temperature high on copy, zero on facts</text>
 
         <rect x="864" y="20" width="272" height="96" rx="12" fill="#f6f3f0"/>
-        <text x="880" y="48" font-weight="700" font-size="12.5">RENDERED PAGE + RECS</text>
-        <text x="880" y="70" fill="#41403e">React renderer, brand tokens,</text>
-        <text x="880" y="86" fill="#41403e">mobile/desktop · testable CRO recs</text>
-        <text x="880" y="104" fill="#7a716c" font-size="11">→ prod: static export behind the CDN</text>
+        <text x="880" y="44" font-weight="700" font-size="12.5">RENDERED PAGE + RECS</text>
+        <text x="880" y="64" fill="#41403e">React renderer · real CDN imagery</text>
+        <text x="880" y="80" fill="#41403e">(likeness-gated) · provenance chips</text>
+        <text x="880" y="96" fill="#41403e">per section · cited CRO test recs</text>
+        <text x="880" y="112" fill="#7a716c" font-size="11">→ prod: static export behind the CDN</text>
 
         <g stroke="#120d0e" stroke-width="2" fill="none">
           <path d="M202 68h40" marker-end="url(#a2)"/><path d="M490 68h40" marker-end="url(#a2)"/><path d="M818 68h40" marker-end="url(#a2)"/>
@@ -481,14 +485,15 @@
 
         <!-- loop row -->
         <rect x="0" y="300" width="360" height="96" rx="12" fill="#f6f3f0"/>
-        <text x="16" y="328" font-weight="700" font-size="12.5">PERFORMANCE JOIN (synthetic in demo)</text>
-        <text x="16" y="350" fill="#41403e">fleet KPIs per Genome attribute →</text>
-        <text x="16" y="366" fill="#41403e">"what the engine learned this cycle"</text>
+        <text x="16" y="326" font-weight="700" font-size="12.5">UNIFIED INTERNAL DATASET (fixed, checked-in)</text>
+        <text x="16" y="346" fill="#41403e">Meta + GA4 + LTV + A/B archive per Genome tag →</text>
+        <text x="16" y="362" fill="#41403e">attribute learnings — a data source, not a</text>
+        <text x="16" y="378" fill="#41403e">scoreboard: the new page's results are unknown</text>
 
         <rect x="408" y="300" width="360" height="96" rx="12" fill="#fbe3ec"/>
         <text x="424" y="328" font-weight="700" font-size="12.5" fill="#c94f74">CONCEPT GENERATOR</text>
-        <text x="424" y="350" fill="#41403e">3 next-iteration briefs, each citing the</text>
-        <text x="424" y="366" fill="#41403e">learning it exploits · safe / new-hook / swing</text>
+        <text x="424" y="350" fill="#41403e">3 briefs (safe / new-hook / swing), each citing</text>
+        <text x="424" y="366" fill="#41403e">the learning or competitor [id] it exploits</text>
 
         <rect x="816" y="300" width="320" height="96" rx="12" fill="#57539e"/>
         <text x="832" y="328" font-weight="700" font-size="12.5" fill="#fff">VEO TEXT-TO-VIDEO</text>
@@ -498,7 +503,7 @@
         <g stroke="#120d0e" stroke-width="2" fill="none">
           <path d="M362 348h40" marker-end="url(#a2)"/><path d="M770 348h40" marker-end="url(#a2)"/>
         </g>
-        <text x="180" y="286" fill="#7a716c" font-size="11" font-style="italic">↓ stage 3</text>
+        <text x="180" y="286" fill="#7a716c" font-size="11" font-style="italic">↓ stage 3 — the loop closes</text>
       </g>
     </svg>
   </div>
@@ -526,8 +531,8 @@
 <section class="slide">
   <div class="kicker">Recommendations for a better ATC / CVR</div>
   <h2>The test queue I'd run first</h2>
-  <div class="grow" style="display:flex;align-items:center">
-    <table style="font-size:13.5px">
+  <div class="grow" style="display:flex;align-items:flex-start;padding-top:10px">
+    <table style="font-size:12px" class="tight">
       <tr><th style="width:5%">Pri</th><th style="width:34%">Test</th><th style="width:40%">Hypothesis</th><th>Metric</th></tr>
       <tr><td><b>1</b></td><td><b>Deep hook-match on creator pages</b> — auto-generate the full creator variant (quote modules, "Trusted by" block), which the Part 2 builder already does</td><td>Continuing the creator's voice past the hero lifts engaged-scroll and ATC for creator-ad traffic</td><td>ATC / CVR</td></tr>
       <tr><td><b>2</b></td><td><b>Performance pass</b> — async VWO, lazy-load below fold, poster-frame videos</td><td>Faster LCP recovers the paid clicks currently lost pre-first-paint</td><td>LP CVR, CPC efficiency</td></tr>
@@ -535,6 +540,7 @@
       <tr><td><b>4</b></td><td><b>Sticky ATC on the long advertorials</b> (module exists on the listicle)</td><td>19-section pages convert mid-scroll readers they currently strand</td><td>ATC</td></tr>
       <tr><td><b>5</b></td><td><b>Quiz keeps its promises</b> — echo the user's zones/concern in the result + restate the $35 gift; pass answers into the destination LP</td><td>Perceived personalization converts the commitment the yes-ladder already built</td><td>quiz→LP CTR, CVR</td></tr>
       <tr><td><b>6</b></td><td><b>Consistency sweep</b> — one jars-sold number, one clinical footnote, real scarcity or none</td><td>Cross-LP shoppers stop catching contradictions that undercut the clinical positioning</td><td>trust · brand QA</td></tr>
+      <tr><td><b>7</b></td><td><b>Post-trial "empty-jar" guarantee</b> — 60-day money-back after the TBYB charge (The Body Firm's signature; no MAËLYS LP has it)</td><td>Extending risk reversal past the trial charge closes the objection TBYB leaves open</td><td>CVR + refund rate</td></tr>
     </table>
   </div>
   <div class="footer"><span><b>Creative Loop</b> · CRO test queue</span><span class="num">14</span></div>
